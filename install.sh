@@ -17,7 +17,7 @@ HOME="${USER_HOME:-${HOME}}"
 
 # Set functions
 
-SCRIPTSFUNCTURL="${SCRIPTSAPPFUNCTURL:-https://github.com/casjay-dotfiles/scripts/raw/master/functions}"
+SCRIPTSFUNCTURL="${SCRIPTSAPPFUNCTURL:-https://github.com/dfmgr/installer/raw/master/functions}"
 SCRIPTSFUNCTDIR="${SCRIPTSAPPFUNCTDIR:-/usr/local/share/CasjaysDev/scripts}"
 SCRIPTSFUNCTFILE="${SCRIPTSAPPFUNCTFILE:-app-installer.bash}"
 
@@ -55,7 +55,7 @@ PLUGINREPO=""
 
 # Version
 
-APPVERSION="$(curl -LSs ${DOTFILESREPO:-https://github.com/casjay-dotfiles}/$APPNAME/raw/master/version.txt)"
+APPVERSION="$(curl -LSs ${DOTFILESREPO:-https://github.com/dfmgr}/$APPNAME/raw/master/version.txt)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
