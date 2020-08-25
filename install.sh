@@ -87,7 +87,7 @@ show_optvars "$@"
 
 # end with a space
 
-APP="$APPNAME yarn "
+APP="node yarn "
 PERL=""
 PYTH=""
 PIPS=""
