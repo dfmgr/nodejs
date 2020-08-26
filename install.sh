@@ -169,6 +169,7 @@ failexitcode
 
 run_postinst() {
     run_postinst_global
+    ls_sf "$APPDIR/nvmrc" "$HOME/.nvmrc"
     
 }
 
