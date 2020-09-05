@@ -58,7 +58,7 @@ APPVERSION="$(curl -LSs $REPORAW/master/version.txt)"
 
 # Setup plugins
 
-PLUGNAMES="nvm"
+PLUGNAMES="nvm fnm"
 PLUGDIR="${SHARE:-$HOME/.local/share}/$APPNAME"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -160,10 +160,11 @@ if [ "$PLUGNAMES" != "" ]; then
     execute \
     "git_update $PLUGDIR/nvm" \
     "Updating plugin nvm"
-  else
+  fi
+  if [ -d "$PLUGDIR"/fvm/.git ]; then
     execute \
-    "git_clone https://github.com/nvm-sh/nvm $PLUGDIR/nvm" \
-    "Installing plugin nvm"
+    "git_update $PLUGDIR/fnm" \
+    "Updating plugin fnm"
   fi
 fi
 
