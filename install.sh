@@ -58,7 +58,7 @@ APPVERSION="$(curl -LSs $REPORAW/master/version.txt)"
 
 # Setup plugins
 
-PLUGNAMES=""
+PLUGNAMES="nvm"
 PLUGDIR="${SHARE:-$HOME/.local/share}/$APPNAME"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -156,14 +156,14 @@ failexitcode
 # Plugins
 
 if [ "$PLUGNAMES" != "" ]; then
-  if [ -d "$PLUGDIR"/PLUREP/.git ]; then
+  if [ -d "$PLUGDIR"/nvm/.git ]; then
     execute \
-    "git_update $PLUGDIR/PLUGREP" \
-    "Updating plugin PLUGNAME"
+    "git_update $PLUGDIR/nvm" \
+    "Updating plugin nvm"
   else
     execute \
-    "git_clone PLUGINREPO $PLUGDIR/PLUGREP" \
-    "Installing plugin PLUGREP"
+    "git_clone https://github.com/nvm-sh/nvm $PLUGDIR/nvm" \
+    "Installing plugin nvm"
   fi
 fi
 
