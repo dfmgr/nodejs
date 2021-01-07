@@ -59,7 +59,7 @@ APPVERSION="$(curl -LSs $REPORAW/master/version.txt)"
 # Setup plugins
 
 PLUGNAMES="nvm fnm"
-PLUGDIR="${SHARE:-$HOME/.local/share}/$APPNAME"
+PLUGDIR="${SHARE:-$HOME/.local/share}/nodejs/$APPNAME"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

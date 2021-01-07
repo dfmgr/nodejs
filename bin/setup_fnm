@@ -46,7 +46,7 @@ installcmd() {
 # main program
 
 export FNM_BIN="${FNM_BIN:-$HOME/.local/bin}"
-export FNM_DIR="${FNM_DIR:-$HOME/.local/share/fnm}"
+export FNM_DIR="${FNM_DIR:-$HOME/.local/share/nodejs/fnm}"
 
 if [[ "$*" == "--remove" ]]; then
   printf_red "Removing FNM from your system"
