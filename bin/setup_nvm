@@ -43,26 +43,46 @@ fi
 
 # main program
 
+export NVM_BIN="${NVM_BIN:-$HOME/.local/bin}"
+export NVM_DIR="${NVM_DIR:-$HOME/.local/share/nvm}"
+
+if [[ "$*" == "--remove" ]]; then
+  printf_red "Removing NVM from your system"
+  rm -Rf $NVM_DIR
+  if [ ! -d $NVM_DIR/.git ]; then
+    printf_green "NVM Has been removed"
+  fi
+  exit
+fi
+
 if [ -z "$(command -v nvm 2>/dev/null)" ]; then
-  printf_red "installing NVM to $HOME/.local/share/nvm"
-  mkdir -p $HOME/.local/share/nvm
-  export NVM_BIN="$HOME/.local/bin"
-  export NVM_DIR="$HOME/.local/share/nvm"
+  printf_red "installing NVM to $NVM_DIR"
+  mkdir -p $NVM_BIN $NVM_DIR
 
-  curl -LSsq -o- https://github.com/nvm-sh/nvm/raw/master/install.sh | bash >/dev/null 2>&1
+  if [ -d $NVM_DIR/.git ]; then
+    execute "git -C $NVM_DIR pull" "Updating NVM"
+  else
+    execute \
+      "git clone https://github.com/nvm-sh/nvm $NVM_DIR" \
+      "Installing the NVM repo"
+  fi
 
-  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-  if cmd_exists nvm; then
-    devnull nvm install node
-    devnull nvm use node
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || exit 1
+  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion" || exit 1
+
+  if [ -z "$(command -v nvm 2>/dev/null)" ]; then
+    execute "nvm install node && nvm use node" "Setting up NVM"
+  fi
+
+  if [ -n "$(command -v nvm 2>/dev/null)" ]; then
     printf_green "NVM has been installed"
   else
-    printf_green "NVM Failed to install"
+    printf_red "NVM Failed to install"
   fi
 else
   printf_green "NVM is already installed"
 fi
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # end

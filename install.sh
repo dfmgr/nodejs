@@ -139,13 +139,13 @@ ensure_perms
 
 if [ -d "$APPDIR/.git" ]; then
   execute \
-  "git_update $APPDIR" \
-  "Updating $APPNAME configurations"
+    "git_update $APPDIR" \
+    "Updating $APPNAME configurations"
 else
   execute \
-  "backupapp && \
+    "backupapp && \
         git_clone -q $REPO/$APPNAME $APPDIR" \
-  "Installing $APPNAME configurations"
+    "Installing $APPNAME configurations"
 fi
 
 # exit on fail
@@ -158,13 +158,13 @@ failexitcode
 if [ "$PLUGNAMES" != "" ]; then
   if [ -d "$PLUGDIR"/nvm/.git ]; then
     execute \
-    "git_update $PLUGDIR/nvm" \
-    "Updating plugin nvm"
+      "git_update $PLUGDIR/nvm" \
+      "Updating plugin nvm"
   fi
   if [ -d "$PLUGDIR"/fvm/.git ]; then
     execute \
-    "git_update $PLUGDIR/fnm" \
-    "Updating plugin fnm"
+      "git_update $PLUGDIR/fnm" \
+      "Updating plugin fnm"
   fi
 fi
 
@@ -178,11 +178,13 @@ failexitcode
 run_postinst() {
   dfmgr_run_post
   ln_sf "$APPDIR/nvmrc" "$HOME/.nvmrc"
+  "$APPDIR/bin/setup_nvm"
+  "$APPDIR/bin/setup_rvm"
 }
 
 execute \
-"run_postinst" \
-"Running post install scripts"
+  "run_postinst" \
+  "Running post install scripts"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

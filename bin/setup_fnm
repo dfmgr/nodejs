@@ -38,28 +38,50 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Set options
-
+installcmd() {
+  curl -fsSL https://github.com/Schniz/fnm/raw/master/.ci/install.sh | bash -s -- --install-dir "$HOME/.local/bin" --skip-shell >/dev/null 2>&1
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # main program
 
+export FNM_BIN="${FNM_BIN:-$HOME/.local/bin}"
+export FNM_DIR="${FNM_DIR:-$HOME/.local/share/fnm}"
+
+if [[ "$*" == "--remove" ]]; then
+  printf_red "Removing FNM from your system"
+  rm -Rf $FNM_DIR
+  if [ ! -d $FNM_DIR/.git ]; then
+    printf_green "FNM Has been removed"
+  fi
+  exit
+fi
+
 if [ -z "$(command -v fnm 2>/dev/null)" ]; then
-  printf_red "installing FNM to $HOME/.local/share/nvm"
-  mkdir -p $HOME/.local/bin
+  printf_red "installing NVM to $FNM_DIR"
+  mkdir -p $FNM_BIN $FNM_DIR
 
-  curl -fsSL https://github.com/Schniz/fnm/raw/master/.ci/install.sh | bash -s -- --install-dir "$HOME/.local/bin" --skip-shell >/dev/null 2>&1
+  if [ -d $FNM_DIR/.git ]; then
+    execute "git -C $FNM_DIR pull" "Updating NVM"
+  else
+    execute \
+      "installcmd" \
+      "Running the FNM script"
+  fi
 
-  if cmd_exists fnm; then
-    eval "$(fnm env --multi)"
-    devnull fnm install node
-    devnull fnm use node
+  if [ -z "$(command -v fnm 2>/dev/null)" ]; then
+    execute "fnm install node && fnm use node" "Setting up FNM"
+  fi
+
+  if [ -n "$(command -v fnm 2>/dev/null)" ]; then
     printf_green "FNM has been installed"
   else
-    printf_green "FNM Failed to install"
+    printf_red "FNM Failed to install"
   fi
 else
   printf_green "FNM is already installed"
 fi
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # end
