@@ -179,7 +179,7 @@ run_postinst() {
   dfmgr_run_post
   ln_sf "$APPDIR/nvmrc" "$HOME/.nvmrc"
   "$APPDIR/bin/setup_nvm"
-  "$APPDIR/bin/setup_rvm"
+  "$APPDIR/bin/setup_fnm"
 }
 
 execute \
