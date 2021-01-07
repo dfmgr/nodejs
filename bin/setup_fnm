@@ -50,7 +50,7 @@ export FNM_DIR="${FNM_DIR:-$HOME/.local/share/fnm}"
 
 if [[ "$*" == "--remove" ]]; then
   printf_red "Removing FNM from your system"
-  rm -Rf $FNM_DIR
+  rm -Rf $FNM_DIR $FNM_BIN/fnm
   if [ ! -d $FNM_DIR/.git ]; then
     printf_green "FNM Has been removed"
   fi
