@@ -155,6 +155,7 @@ failexitcode
 
 # Plugins
 
+if __am_i_online; then
 if [ "$PLUGNAMES" != "" ]; then
   if [ -d "$PLUGDIR"/nvm/.git ]; then
     execute \
@@ -166,6 +167,7 @@ if [ "$PLUGNAMES" != "" ]; then
       "git_update $PLUGDIR/fnm" \
       "Updating plugin fnm"
   fi
+fi
 fi
 
 # exit on fail
