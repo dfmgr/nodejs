@@ -52,7 +52,7 @@ APPNAME="${APPNAME:-nodejs}"
 APPDIR="${APPDIR:-$HOME/.config/$APPNAME}"
 REPO="${DFMGRREPO:-https://github.com/dfmgr}/${APPNAME}"
 REPORAW="${REPORAW:-$REPO/raw}"
-APPVERSION="$(curl -LSs $REPORAW/master/version.txt)"
+APPVERSION="$(__appversion)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -137,7 +137,7 @@ ensure_perms
 
 # Main progam
 
-if [ -d "$APPDIR/.git" ]; then
+if [ -d "$DOWNLOADED_TO/.git" ]; then
   execute \
     "git_update $APPDIR" \
     "Updating $APPNAME configurations"
@@ -177,9 +177,9 @@ failexitcode
 
 run_postinst() {
   dfmgr_run_post
-  ln_sf "$APPDIR/nvmrc" "$HOME/.nvmrc"
-  "$APPDIR/bin/setup_nvm"
-  "$APPDIR/bin/setup_fnm"
+  ln_sf "$DOWNLOADED_TO/nvmrc" "$HOME/.nvmrc"
+  "$DOWNLOADED_TO/bin/setup_nvm"
+  "$DOWNLOADED_TO/bin/setup_fnm"
 }
 
 execute \
