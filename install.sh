@@ -137,14 +137,17 @@ ensure_perms
 
 # Main progam
 
+if [ -d "$APPDIR" ]; then
+  execute "backupapp $APPDIR $APPNAME" "Backing up $APPDIR"
+fi
+
 if [ -d "$DOWNLOADED_TO/.git" ]; then
   execute \
     "git_update $DOWNLOADED_TO" \
     "Updating $APPNAME configurations"
 else
   execute \
-    "backupapp && \
-        git_clone -q $REPO/$APPNAME $DOWNLOADED_TO" \
+    "git_clone -q $REPO/$APPNAME $DOWNLOADED_TO" \
     "Installing $APPNAME configurations"
 fi
 
@@ -156,22 +159,22 @@ failexitcode
 # Plugins
 
 if __am_i_online; then
-if [ "$PLUGNAMES" != "" ]; then
-  if [ -d "$PLUGDIR"/nvm/.git ]; then
-    execute \
-      "git_update $PLUGDIR/nvm" \
-      "Updating plugin nvm"
+  if [ "$PLUGNAMES" != "" ]; then
+    if [ -d "$PLUGDIR"/nvm/.git ]; then
+      execute \
+        "git_update $PLUGDIR/nvm" \
+        "Updating plugin nvm"
+    fi
+    if [ -d "$PLUGDIR"/fvm/.git ]; then
+      execute \
+        "git_update $PLUGDIR/fnm" \
+        "Updating plugin fnm"
+    fi
   fi
-  if [ -d "$PLUGDIR"/fvm/.git ]; then
-    execute \
-      "git_update $PLUGDIR/fnm" \
-      "Updating plugin fnm"
-  fi
-fi
-fi
 
-# exit on fail
-failexitcode
+  # exit on fail
+  failexitcode
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
