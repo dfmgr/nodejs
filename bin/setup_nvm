@@ -1,97 +1,103 @@
 #!/usr/bin/env bash
-
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="setup_nvm"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : setup_nvm
-# @Created     : Wed, Aug 05, 2020, 02:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : Node Version Manager installer
-#
+##@Version       : 031520211501-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : setup_nvm --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Monday, Mar 15, 2021 15:01 EDT
+# @File          : setup_nvm
+# @Description   : Node Version Manager installer
+# @Description   :
+# @TODO          :
+# @Other         :
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# Set functions
-
-SCRIPTSFUNCTURL="${SCRIPTSAPPFUNCTURL:-https://github.com/dfmgr/installer/raw/master/functions}"
-SCRIPTSFUNCTDIR="${SCRIPTSAPPFUNCTDIR:-/usr/local/share/CasjaysDev/scripts}"
-SCRIPTSFUNCTFILE="${SCRIPTSAPPFUNCTFILE:-applications.bash}"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-if [ -f "$SCRIPTSFUNCTDIR/functions/$SCRIPTSFUNCTFILE" ]; then
-  . "$SCRIPTSFUNCTDIR/functions/$SCRIPTSFUNCTFILE"
-elif [ -f "$HOME/.local/share/CasjaysDev/functions/$SCRIPTSFUNCTFILE" ]; then
-  . "$HOME/.local/share/CasjaysDev/functions/$SCRIPTSFUNCTFILE"
+# Main function file
+if [ -f "$SRC_DIR/functions.bash" ]; then
+  FUNCTIONS_DIR="$SRC_DIR"
+  . "$FUNCTIONS_DIR/functions.bash"
+elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+  FUNCTIONS_DIR="$HOME/.local/bin"
+  . "$FUNCTIONS_DIR/functions.bash"
 else
-  curl -LSs "$SCRIPTSFUNCTURL/$SCRIPTSFUNCTFILE" -o "/tmp/$SCRIPTSFUNCTFILE" || exit 1
-  . "/tmp/$SCRIPTSFUNCTFILE"
+  printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+  return 1
 fi
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-[ "$1" = "--version" ] && get_app_info "$APPNAME"
-
+# helper function
+__version() { app_version; }
+__help() {
+  app_help "Usage: setup_nvm  -  setup_nvm --version"  \
+    "-r --remove            -  remove nvm"
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# Set options
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# main program
-
-export NVM_BIN="${NVM_BIN:-$HOME/.local/bin}"
-export NVM_DIR="${NVM_DIR:-$HOME/.local/share/nodejs/nvm}"
-
-if [[ "$*" == "--remove" ]]; then
-  printf_red "Removing NVM from your system"
-  rm -Rf "$NVM_DIR"
-  if [ ! -d "$NVM_DIR/.git" ]; then
-    printf_green "NVM Has been removed"
-  fi
-  exit
-fi
-
-if [ -z "$(command -v nvm 2>/dev/null)" ]; then
-  printf_red "installing NVM to $NVM_DIR"
-  mkdir -p "$NVM_BIN" "$NVM_DIR"
-
-  if [ -d "$NVM_DIR/.git" ]; then
-    execute "git -C $NVM_DIR pull" "Updating NVM"
-  else
-    execute \
-    "git clone https://github.com/nvm-sh/nvm $NVM_DIR" \
-    "Installing the NVM repo"
-  fi
-
-  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || exit 1
-  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion" || exit 1
-
+# Main function
+main() {
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # options
+  case $1 in
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+    -r | --remove) shift 1 && printf_red "Removing NVM from your system" && \
+      rm -Rf "$NVM_DIR" && [ ! -d "$NVM_DIR/.git" ] && printf_green "NVM Has been removed" exit 0 || exit 1 ;;
+  esac
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Required app check
+  cmd_exists --error bash || exit 1
+  am_i_online --error || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  export NVM_BIN="${NVM_BIN:-$HOME/.local/bin}"
+  export NVM_DIR="${NVM_DIR:-$HOME/.local/share/nodejs/nvm}"
   if [ -z "$(command -v nvm 2>/dev/null)" ]; then
-    execute "nvm install node && nvm use node" "Setting up NVM"
-  fi
-
-  if [ -f "$(command -v nvm 2>/dev/null)" ]; then
-    printf_green "NVM has been installed"
-  else
-    printf_red "NVM Failed to install"
-  fi
-else
-  if [ "$(nvm use default 2>/dev/null | grep -q N/A) >/dev/null 2>&1" ]; then
-    execute "nvm install node && nvm use node" "Setting up NVM"
-    if [ -n "$(command -v nvm 2>/dev/null)" ]; then
+    printf_red "installing NVM to $NVM_DIR"
+    mkdir -p "$NVM_BIN" "$NVM_DIR"
+    if [ -d "$NVM_DIR/.git" ]; then
+      execute "git -C $NVM_DIR pull" "Updating NVM"
+    else
+      execute "git clone https://github.com/nvm-sh/nvm $NVM_DIR" "Installing the NVM repo"
+    fi
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || return 1
+    [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion" || return 1
+    if [ -z "$(command -v nvm 2>/dev/null)" ]; then
+      execute "nvm install node && nvm use node" "Setting up NVM"
+    fi
+    if [ -f "$(command -v nvm 2>/dev/null)" ]; then
       printf_green "NVM has been installed"
     else
       printf_red "NVM Failed to install"
     fi
-  else
-    printf_green "NVM is already installed"
+    else
+    if [ "$(nvm use default 2>/dev/null | grep -q N/A) >/dev/null 2>&1" ]; then
+      execute "nvm install node && nvm use node" "Setting up NVM"
+      if [ -n "$(command -v nvm 2>/dev/null)" ]; then
+        printf_green "NVM has been installed"
+      else
+        printf_red "NVM Failed to install"
+      fi
+    else
+      printf_green "NVM is already installed"
+    fi
   fi
-fi
-
+  return "${exitCode:-$?}"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+
