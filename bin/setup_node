@@ -41,7 +41,8 @@ __help() {
   exit
 }
 __install_yarn() {
-  sudo bash -c "$(curl -q -fsSL https://yarnpkg.com/install.sh 2>/dev/null)"
+  printf "Installing yarn\n"
+  sudo bash -c "$(curl -q -fsSL https://yarnpkg.com/install.sh &>/dev/null)"
   cmd_exists yarn && return 0 || return 1
 }
 __install_node() {
