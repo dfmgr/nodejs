@@ -48,21 +48,20 @@ __sudo() {
   fi
 }
 __install_node() {
-  if [ "$UID" = 0 ] || [ "$USER" = "root" ]; then
-    curl -fsSL https://rpm.nodesource.com/setup_15.x | bash || return 1
-  elif cmd_exists sudo; then
-    curl -fsSL https://rpm.nodesource.com/setup_15.x | sudo bash || return 1
-  fi
-  if cmd_exists pkmgr; then
-    pkmgr install nodejs
-  elif cmd_exists apt-cache; then
-   __sudo apt update && __sudo apt install -yy nodejs
+  if cmd_exists apt-cache; then
+    apt-get install -yy build-essential
+    curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+    __sudo apt update && __sudo apt install -yy nodejs
   elif cmd_exists yum; then
     __sudo yum groupinstall 'Development Tools'
+    curl -fsSL https://rpm.nodesource.com/setup_current.x | sudo bash -
     __sudo yum install nodejs
   elif cmd_exists dnf; then
     __sudo dnf groupinstall 'Development Tools'
+    curl -fsSL https://rpm.nodesource.com/setup_current.x | sudo bash -
     __sudo dnf install nodejs
+  else
+    cmd_exists pkmgr && pkmgr install nodejs || false
   fi
   return $?
 }
