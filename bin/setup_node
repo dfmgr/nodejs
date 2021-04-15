@@ -40,34 +40,37 @@ __help() {
   printf_color "4" "usage: setup_node  |  setup_node --version"
   exit
 }
-__sudo() {
-  if cmd_exists sudo; then
-    sudo "$*"
-  else
-    su - root -c "sh -c "$*""
-  fi
-}
 __install_node() {
   if cmd_exists apt-cache; then
-    apt-get install -yy build-essential
-    curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
-    __sudo apt update && __sudo apt install -yy nodejs
+    sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_DEB")" &&
+      sudo apt update &&
+      sudo apt-get install -yy build-essential &&
+      sudo apt install -yy nodejs ||
+      false
+
   elif cmd_exists yum; then
-    __sudo yum groupinstall 'Development Tools'
-    curl -fsSL https://rpm.nodesource.com/setup_current.x | sudo bash -
-    __sudo yum install nodejs
+    sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_RPM")" &&
+      sudo yum groupinstall -y 'Development Tools' &&
+      sudo yum install -y nodejs ||
+      false
+
   elif cmd_exists dnf; then
-    __sudo dnf groupinstall 'Development Tools'
-    curl -fsSL https://rpm.nodesource.com/setup_current.x | sudo bash -
-    __sudo dnf install nodejs
+    sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_RPM")" &&
+      sudo dnf groupinstall -y 'Development Tools' &&
+      sudo dnf install -y nodejs ||
+      false
+
   else
-    cmd_exists pkmgr && pkmgr install nodejs || false
+    cmd_exists pkmgr &&
+      pkmgr silent install nodejs ||
+      false
   fi
   return $?
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set additional variables
-INSTALL_SCRIPT="${INSTALL_SCRIPT:-https://rpm.nodesource.com/setup_current.x}"
+INSTALL_SCRIPT_DEB="${INSTALL_SCRIPT_DEB:-https://deb.nodesource.com/setup_current.x}"
+INSTALL_SCRIPT_RPM="${INSTALL_SCRIPT_RPM:-https://rpm.nodesource.com/setup_current.x}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bring in user config
