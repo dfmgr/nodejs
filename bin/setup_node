@@ -44,7 +44,7 @@ __install_node() {
   if cmd_exists apt-cache; then
     sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_DEB")" &&
       sudo apt update &&
-      sudo apt-get install -yy build-essential &&
+      sudo apt install -yy build-essential &&
       sudo apt install -yy nodejs ||
       false
 
