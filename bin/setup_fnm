@@ -57,6 +57,9 @@ main() {
   # Required app check
   cmd_exists --error bash curl git || exit 1
   am_i_online --error || return 1
+  if [ -n "$NODE_MANAGER" ]; then
+    [ "$NODE_MANAGER" = "fnm" ] || exit 0
+  fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   export FNM_BIN="${FNM_BIN:-$HOME/.local/bin}"

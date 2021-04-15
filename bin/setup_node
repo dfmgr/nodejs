@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="setup_node"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202104150019-git
+# @Author        : Jason
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : setup_node --help
+# @Copyright     : Copyright (c) 2021, Casjays Developments
+# @Created       : Thursday Apr 15, 2021 00:01:14 EDT
+# @File          : setup_node
+# @Description   : install nodejs on apt/yum based systems
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Check for needed applications
+cmd_exists bash || exit 1 # exit if not found
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Set variables
+setup_node_CONFIG_DIR="$HOME/.config/setup_node/settings.conf"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Set functions
+printf_color() { printf "%b" "$(tput setaf "$1" 2>/dev/null)" "\t\t$2\n" "$(tput sgr0 2>/dev/null)"; }
+__version() {
+  command="$(type -P "setup_node")"
+  grep -E '[".#] @[A-Z]' "$command"
+  grep -E '[".#]#@[A-Z]' "$command"
+}
+__help() {
+  printf_color "4" "$(grep ^"# @Description" "setup_node | grep ' : " || setup_node help)"
+  printf_color "4" "usage: setup_node  |  setup_node --version"
+  exit
+}
+__sudo() {
+  if cmd_exists sudo; then
+    sudo "$*"
+  else
+    su - root -c "sh -c "$*""
+  fi
+}
+__install_node() {
+  if [ "$UUID" = 0 ]; then
+    curl -fsSL https://rpm.nodesource.com/setup_15.x | bash || return 1
+  elif cmd_exists sudo; then
+    curl -fsSL https://rpm.nodesource.com/setup_15.x | sudo bash || return 1
+  fi
+  if cmd_exists pkmgr; then
+    pkmgr install nodejs
+  elif cmd_exists apt-cache; then
+   __sudo apt update && __sudo apt install -yy nodejs
+  elif cmd_exists yum; then
+    __sudo yum groupinstall 'Development Tools'
+    __sudo yum install nodejs
+  elif cmd_exists dnf; then
+    __sudo dnf groupinstall 'Development Tools'
+    __sudo dnf install nodejs
+  fi
+  return $?
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Set additional variables
+INSTALL_SCRIPT="${INSTALL_SCRIPT:-https://rpm.nodesource.com/setup_current.x}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# bring in user config
+#[ -f "$SETUP_NODE_CONFIG_DIR/settings.conf" ] && . "$SETUP_NODE_CONFIG_DIR/settings.conf"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main application
+case "$1" in
+--help)
+  shift 1
+  __help
+  ;;
+--version)
+  shift 1
+  __version
+  ;;
+*)
+  __install_node
+  ;;
+esac
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end
+

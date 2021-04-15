@@ -57,6 +57,9 @@ main() {
   # Required app check
   cmd_exists --error bash || exit 1
   am_i_online --error || exit 1
+  if [ -n "$NODE_MANAGER" ]; then
+    [ "$NODE_MANAGER" = "nvm" ] || exit 1
+  fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   export NVM_BIN="${NVM_BIN:-$HOME/.local/bin}"
