@@ -40,32 +40,39 @@ __help() {
   printf_color "4" "usage: setup_node  |  setup_node --version"
   exit
 }
+__install_yarn() {
+  sudo bash -c "$(curl -o- -L https://yarnpkg.com/install.sh)" || return 1
+}
 __install_node() {
+  local exitCode=0
   if cmd_exists apt-cache; then
     sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_DEB")" &&
       sudo apt update &&
       sudo apt install -yy build-essential &&
       sudo apt install -yy nodejs ||
-      false
+      exitCode=1
 
   elif cmd_exists yum; then
     sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_RPM")" &&
       sudo yum groupinstall -y 'Development Tools' &&
       sudo yum install -y nodejs ||
-      false
+      exitCode=1
 
   elif cmd_exists dnf; then
     sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_RPM")" &&
       sudo dnf groupinstall -y 'Development Tools' &&
       sudo dnf install -y nodejs ||
-      false
+      exitCode=1
 
   else
     cmd_exists pkmgr &&
       pkmgr silent install nodejs ||
-      false
+      exitCode=1
   fi
-  return $?
+  if [ "$exitCode" = 0 ]; then
+    __install_yarn || exitCode=1
+  fi
+  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set additional variables
