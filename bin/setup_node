@@ -48,7 +48,7 @@ __sudo() {
   fi
 }
 __install_node() {
-  if [ "$UUID" = 0 ]; then
+  if [ "$UID" = 0 ] || [ "$USER" = "root" ]; then
     curl -fsSL https://rpm.nodesource.com/setup_15.x | bash || return 1
   elif cmd_exists sudo; then
     curl -fsSL https://rpm.nodesource.com/setup_15.x | sudo bash || return 1

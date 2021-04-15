@@ -62,8 +62,8 @@ main() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  export FNM_BIN="${FNM_BIN:-$HOME/.local/bin}"
   export FNM_DIR="${FNM_DIR:-$HOME/.local/share/nodejs/fnm}"
+  export FNM_BIN="${FNM_BIN:-$HOME/.local/bin}"
 
   if [[ "$*" == "--remove" ]]; then
     printf_red "Removing FNM from your system"

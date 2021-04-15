@@ -147,8 +147,11 @@ fi
 run_postinst() {
   dfmgr_run_post
   ln_sf "$APPDIR/nvmrc" "$HOME/.nvmrc"
-  __am_i_online && "$INSTDIR/bin/setup_nvm"
-  __am_i_online && "$INSTDIR/bin/setup_fnm"
+  if __am_i_online; then
+    "$INSTDIR/bin/setup_node"
+    "$INSTDIR/bin/setup_nvm"
+    "$INSTDIR/bin/setup_fnm"
+  fi
 }
 #
 execute "run_postinst" "Running post install scripts"
