@@ -49,7 +49,8 @@ __install_node() {
     sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_DEB")" &&
       sudo apt update &&
       sudo apt install -yy build-essential &&
-      sudo apt install -yy nodejs ||
+      sudo apt install -yy nodejs &&
+      sudo apt autoremove -yy ||
       exitCode=1
 
   elif cmd_exists yum; then
