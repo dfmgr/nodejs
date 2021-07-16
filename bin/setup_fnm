@@ -36,13 +36,15 @@ fi
 # helper function
 __version() { app_version; }
 __help() {
-  app_help "Usage: setup_fnm  -  setup_fnm --version"  \
+  app_help "Usage: setup_fnm  -  setup_fnm --version" \
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 installcmd() {
-  curl -q -fsSL https://github.com/Schniz/fnm/raw/master/.ci/install.sh | \
-    bash -s -- --install-dir "$HOME/.local/bin" --skip-shell >/dev/null 2>&1
+  curl -q -fsSL https://github.com/Schniz/fnm/raw/master/.ci/install.sh |
+    bash -s -- --install-dir "$HOME/.local/bin" --skip-shell >/dev/null 2>&1 &&
+    return 0 || return 1
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
@@ -50,8 +52,8 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
@@ -62,13 +64,14 @@ main() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
+  exitCode=0
   export FNM_DIR="${FNM_DIR:-$HOME/.local/share/nodejs/fnm}"
   export FNM_BIN="${FNM_BIN:-$HOME/.local/bin}"
-
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [[ "$*" == "--remove" ]]; then
     printf_red "Removing FNM from your system"
-    rm -Rf $FNM_DIR $FNM_BIN/fnm
-    if [ ! -d $FNM_DIR/.git ]; then
+    rm -Rf "$FNM_DIR" "$FNM_BIN/fnm"
+    if [ ! -d "$FNM_DIR/.git" ]; then
       printf_green "FNM Has been removed"
     fi
     exit
@@ -76,8 +79,8 @@ main() {
 
   if [ -z "$(command -v fnm 2>/dev/null)" ]; then
     printf_red "installing NVM to $FNM_DIR"
-    mkdir -p $FNM_BIN $FNM_DIR
-    if [ -d $FNM_DIR/.git ]; then
+    mkdir -p "$FNM_BIN" "$FNM_DIR"
+    if [ -d "$FNM_DIR/.git" ]; then
       execute "git -C $FNM_DIR pull" "Updating NVM"
     else
       execute "installcmd" "Running the FNM script"
@@ -103,4 +106,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

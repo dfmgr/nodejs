@@ -23,9 +23,10 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Check for needed applications
 cmd_exists bash || exit 1 # exit if not found
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set variables
-setup_node_CONFIG_DIR="$HOME/.config/setup_node/settings.conf"
+SETUP_NODE_CONFIG_DIR="$HOME/.config/setup_node/settings.conf"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set functions
@@ -35,42 +36,39 @@ __version() {
   grep -E '[".#] @[A-Z]' "$command"
   grep -E '[".#]#@[A-Z]' "$command"
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __help() {
   printf_color "4" "$(grep ^"# @Description" "setup_node | grep ' : " || setup_node help)"
   printf_color "4" "usage: setup_node  |  setup_node --version"
   exit
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __install_yarn() {
   printf "Installing yarn\n"
   sudo bash -c "$(curl -q -fsSL https://yarnpkg.com/install.sh &>/dev/null)"
   cmd_exists yarn && return 0 || return 1
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __install_node() {
   local exitCode=0
+  sudoif || printf_exit 1 1 "This requires access to sudo"
   if cmd_exists apt-cache; then
     sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_DEB")" &&
       sudo apt update &&
       sudo apt install -yy build-essential &&
       sudo apt install -yy nodejs &&
-      sudo apt autoremove -yy ||
-      exitCode=1
-
+      sudo apt autoremove -yy || exitCode=1
   elif cmd_exists yum; then
     sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_RPM")" &&
       sudo yum groupinstall -y 'Development Tools' &&
-      sudo yum install -y nodejs ||
-      exitCode=1
-
+      sudo yum install -y nodejs || exitCode=1
   elif cmd_exists dnf; then
     sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_RPM")" &&
       sudo dnf groupinstall -y 'Development Tools' &&
-      sudo dnf install -y nodejs ||
-      exitCode=1
-
+      sudo dnf install -y nodejs || exitCode=1
   else
     cmd_exists pkmgr &&
-      pkmgr silent install nodejs ||
-      exitCode=1
+      pkmgr silent install nodejs || exitCode=1
   fi
   if [ "$exitCode" = 0 ]; then
     __install_yarn || exitCode=1
@@ -84,7 +82,7 @@ INSTALL_SCRIPT_RPM="${INSTALL_SCRIPT_RPM:-https://rpm.nodesource.com/setup_curre
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bring in user config
-#[ -f "$SETUP_NODE_CONFIG_DIR/settings.conf" ] && . "$SETUP_NODE_CONFIG_DIR/settings.conf"
+[ -f "$SETUP_NODE_CONFIG_DIR/settings.conf" ] && . "$SETUP_NODE_CONFIG_DIR/settings.conf"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main application
@@ -105,4 +103,3 @@ esac
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

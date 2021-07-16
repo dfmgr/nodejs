@@ -37,9 +37,9 @@ fi
 # helper function
 __version() { app_version; }
 __help() {
-  app_help "Usage: setup_nvm  -  setup_nvm --version"  \
+  app_help "Usage: setup_nvm  -  setup_nvm --version" \
     "-r --remove            -  remove nvm"
-    "-v, --version          -  display version" \
+  "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -48,10 +48,10 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
-    -r | --remove) shift 1 && printf_red "Removing NVM from your system" && \
-      rm -Rf "$NVM_DIR" && [ ! -d "$NVM_DIR/.git" ] && printf_green "NVM Has been removed" exit 0 || exit 1 ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
+  -r | --remove) shift 1 && printf_red "Removing NVM from your system" &&
+    rm -Rf "$NVM_DIR" && [ ! -d "$NVM_DIR/.git" ] && printf_green "NVM Has been removed" exit 0 || exit 1 ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
@@ -82,8 +82,8 @@ main() {
     else
       printf_red "NVM Failed to install"
     fi
-    else
-    if [ "$(nvm use default 2>/dev/null | grep -q N/A) >/dev/null 2>&1" ]; then
+  else
+    if [ "$(nvm use default 2>/dev/null | grep -q N/A)" ]; then
       execute "nvm install node && nvm use node" "Setting up NVM"
       if [ -n "$(command -v nvm 2>/dev/null)" ]; then
         printf_green "NVM has been installed"
@@ -103,4 +103,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-
