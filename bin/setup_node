@@ -21,6 +21,26 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function file
+if [ -f "$SRC_DIR/functions.bash" ]; then
+  FUNCTIONS_DIR="$SRC_DIR"
+  . "$FUNCTIONS_DIR/functions.bash"
+elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+  FUNCTIONS_DIR="$HOME/.local/bin"
+  . "$FUNCTIONS_DIR/functions.bash"
+else
+  printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+  return 1
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# helper function
+__version() { app_version; }
+__help() {
+  app_help "Usage: setup_fnm  -  setup_fnm --version" \
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Check for needed applications
 cmd_exists bash || exit 1 # exit if not found
 
@@ -47,6 +67,16 @@ __install_yarn() {
   printf "Installing yarn\n"
   sudo bash -c "$(curl -q -fsSL https://yarnpkg.com/install.sh &>/dev/null)"
   cmd_exists yarn && return 0 || return 1
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# NodeJS check
+__node_check() {
+  if cmd_exists nodejs || cmd_exists node; then
+    printf_green "nodejs is already installed"
+    return 0
+  else
+    return 1
+  fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __install_node() {
@@ -96,7 +126,7 @@ case "$1" in
   __version
   ;;
 *)
-  __install_node
+  __node_check || __install_node
   ;;
 esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
