@@ -103,6 +103,7 @@ __install_node() {
   if [ "$exitCode" = 0 ]; then
     __install_yarn || exitCode=1
   fi
+  cmd_exists pkmgr && cmd_exists npm && pkmgr npm install npm-check-updates
   return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
