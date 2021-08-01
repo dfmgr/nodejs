@@ -42,7 +42,7 @@ __help() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 installcmd() {
-  curl -q -fsSL https://github.com/Schniz/fnm/raw/master/.ci/install.sh |
+  curl -q -fsSL https://github.com/Schniz/fnm/raw/main/.ci/install.sh |
     bash -s -- --install-dir "$HOME/.local/bin" --skip-shell >/dev/null 2>&1 &&
     return 0 || return 1
 }

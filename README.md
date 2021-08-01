@@ -5,7 +5,7 @@ A JavaScript runtime built on Chrome's V8 JavaScript engine
 Automatic install/update:
 
 ```shell
-bash -c "$(curl -LSs https://github.com/dfmgr/nodejs/raw/master/install.sh)"
+bash -c "$(curl -LSs https://github.com/dfmgr/nodejs/raw/main/install.sh)"
 ```
 
 Manual install:
