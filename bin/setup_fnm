@@ -78,29 +78,25 @@ main() {
     exit
   fi
 
-  if [ -z "$(command -v fnm 2>/dev/null)" ]; then
-    printf_red "installing NVM to $FNM_DIR"
-    mkdir -p "$FNM_BIN" "$FNM_DIR"
-    if [ -d "$FNM_DIR/.git" ]; then
-      printf_blue "Updating NVM"
-      git -C $FNM_DIR pull -q &>/dev/null
-    else
-      printf_blue "Running the FNM script"
-      installcmd || printf_exit "Failed to install FNM"
-    fi
-    if [ -z "$(command -v fnm 2>/dev/null)" ]; then
-      printf_blue "Setting up FNM"
-      fnm install "$FNM_NODE_VERSION" &>/dev/null
-      fnm ls | grep -q "$FNM_NODE_VERSION" && fnm use "$FNM_NODE_VERSION" &>/dev/null
-    fi
-    if [ -n "$(command -v fnm 2>/dev/null)" ]; then
-      printf_green "FNM has been installed"
-    else
-      printf_red "FNM Failed to install"
-      exitcode=1
-    fi
+  printf_red "installing NVM to $FNM_DIR"
+  mkdir -p "$FNM_BIN" "$FNM_DIR"
+  if [ -d "$FNM_DIR/.git" ]; then
+    printf_blue "Updating NVM"
+    git -C $FNM_DIR pull -q &>/dev/null
   else
-    printf_green "FNM is already installed"
+    printf_blue "Running the FNM script"
+    installcmd || printf_exit "Failed to install FNM"
+  fi
+  if [ -z "$(command -v fnm 2>/dev/null)" ]; then
+    printf_blue "Setting up FNM"
+    fnm install "$FNM_NODE_VERSION" &>/dev/null
+    fnm ls | grep -q "$FNM_NODE_VERSION" && fnm use "$FNM_NODE_VERSION" &>/dev/null
+  fi
+  if [ -n "$(command -v fnm 2>/dev/null)" ]; then
+    printf_green "FNM has been installed"
+  else
+    printf_red "FNM Failed to install"
+    exitcode=1
   fi
   return "${exitCode:-$?}"
 }
