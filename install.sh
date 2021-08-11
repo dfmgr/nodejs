@@ -119,7 +119,7 @@ if [ -d "$APPDIR" ]; then
   execute "backupapp $APPDIR $APPNAME" "Backing up $APPDIR"
 fi
 # Main progam
-if __am_i_online; then
+if am_i_online; then
   if [ -d "$INSTDIR/.git" ]; then
     execute "git_update $INSTDIR" "Updating $APPNAME configurations"
   else
@@ -130,7 +130,7 @@ if __am_i_online; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Plugins
-if __am_i_online; then
+if am_i_online; then
   if [ "$PLUGNAMES" != "" ]; then
     if [ -d "$PLUGDIR"/nvm/.git ]; then
       execute "git_update $PLUGDIR/nvm" "Updating plugin nvm"
@@ -147,7 +147,7 @@ fi
 run_postinst() {
   dfmgr_run_post
   ln_sf "$APPDIR/nvmrc" "$HOME/.nvmrc"
-  if __am_i_online; then
+  if am_i_online; then
     "$INSTDIR/bin/setup_node"
     "$INSTDIR/bin/setup_nvm"
     "$INSTDIR/bin/setup_fnm"
