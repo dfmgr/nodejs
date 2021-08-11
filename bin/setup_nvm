@@ -38,8 +38,8 @@ fi
 __version() { app_version; }
 __help() {
   app_help "Usage: setup_nvm  -  setup_nvm --version" \
-    "-r --remove            -  remove nvm"
-  "-v, --version          -  display version" \
+    "-r --remove            -  remove nvm" \
+    "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
