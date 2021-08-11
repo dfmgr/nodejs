@@ -67,6 +67,7 @@ main() {
   exitCode=0
   export FNM_DIR="${FNM_DIR:-$HOME/.local/share/nodejs/fnm}"
   export FNM_BIN="${FNM_BIN:-$HOME/.local/bin}"
+  export FNM_NODE_VERSION="${FNM_NODE_VERSION:-16}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [[ "$*" == "--remove" ]]; then
     printf_red "Removing FNM from your system"
@@ -86,7 +87,7 @@ main() {
       execute "installcmd" "Running the FNM script"
     fi
     if [ -z "$(command -v fnm 2>/dev/null)" ]; then
-      execute "fnm install node && fnm use node" "Setting up FNM"
+      execute "fnm install $FNM_NODE_VERSION && fnm use $FNM_NODE_VERSION" "Setting up FNM"
     fi
     if [ -n "$(command -v fnm 2>/dev/null)" ]; then
       printf_green "FNM has been installed"
