@@ -78,7 +78,7 @@ show_optvars "$@"
 dfmgr_run_init
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end with a space
-APP="$APPNAME node npm yarn "
+APP="node node npm yarn "
 PERL=""
 PYTH=""
 PIPS=""
