@@ -85,7 +85,6 @@ main() {
   else
     printf_red "NVM Failed to install"
   fi
-  else
   if [ "$(nvm use default 2>/dev/null | grep -q N/A)" ]; then
     printf_blue "Setting up NVM"
     nvm install node &>/dev/null && nvm use node &>/dev/null
