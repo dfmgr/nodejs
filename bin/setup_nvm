@@ -68,14 +68,17 @@ main() {
     printf_red "installing NVM to $NVM_DIR"
     mkdir -p "$NVM_BIN" "$NVM_DIR"
     if [ -d "$NVM_DIR/.git" ]; then
-      execute "git -C $NVM_DIR pull" "Updating NVM"
+      printf_blue "Updating NVM"
+      git -C $NVM_DIR pull -q &>/dev/null
     else
-      execute "git clone https://github.com/nvm-sh/nvm $NVM_DIR" "Installing the NVM repo"
+      printf_blue "Installing the NVM from git"
+      git clone https://github.com/nvm-sh/nvm "$NVM_DIR" -q &>/dev/null
     fi
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || return 1
     [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion" || return 1
     if [ -z "$(command -v nvm 2>/dev/null)" ]; then
-      execute "nvm install node && nvm use node" "Setting up NVM"
+      printf_blue "Setting up NVM"
+      nvm install node &>/dev/null && nvm use node &>/dev/null
     fi
     if [ -f "$(command -v nvm 2>/dev/null)" ]; then
       printf_green "NVM has been installed"
@@ -84,7 +87,8 @@ main() {
     fi
   else
     if [ "$(nvm use default 2>/dev/null | grep -q N/A)" ]; then
-      execute "nvm install node && nvm use node" "Setting up NVM"
+      printf_blue "Setting up NVM"
+      nvm install node &>/dev/null && nvm use node &>/dev/null
       if [ -n "$(command -v nvm 2>/dev/null)" ]; then
         printf_green "NVM has been installed"
       else

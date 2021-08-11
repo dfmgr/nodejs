@@ -72,7 +72,7 @@ main() {
   if [[ "$*" == "--remove" ]]; then
     printf_red "Removing FNM from your system"
     rm -Rf "$FNM_DIR" "$FNM_BIN/fnm"
-    if [ ! -d "$FNM_DIR/.git" ]; then
+    if [ ! -d "$FNM_DIR/.git" ] && [ -z "$(command -v fnm 2>/dev/null)" ]; then
       printf_green "FNM Has been removed"
     fi
     exit
@@ -82,12 +82,16 @@ main() {
     printf_red "installing NVM to $FNM_DIR"
     mkdir -p "$FNM_BIN" "$FNM_DIR"
     if [ -d "$FNM_DIR/.git" ]; then
-      execute "git -C $FNM_DIR pull" "Updating NVM"
+      printf_blue "Updating NVM"
+      git -C $FNM_DIR pull -q &>/dev/null
     else
-      execute "installcmd" "Running the FNM script"
+      printf_blue "Running the FNM script"
+      installcmd || printf_exit "Failed to install FNM"
     fi
     if [ -z "$(command -v fnm 2>/dev/null)" ]; then
-      execute "fnm install $FNM_NODE_VERSION && fnm use $FNM_NODE_VERSION" "Setting up FNM"
+      printf_blue "Setting up FNM"
+      fnm install "$FNM_NODE_VERSION" &>/dev/null
+      fnm ls | grep -q "$FNM_NODE_VERSION" && fnm use "$FNM_NODE_VERSION" &>/dev/null
     fi
     if [ -n "$(command -v fnm 2>/dev/null)" ]; then
       printf_green "FNM has been installed"
