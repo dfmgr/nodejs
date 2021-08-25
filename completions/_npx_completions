@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202108242257-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : npx --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Tuesday, Aug 24, 2021 22:57 EDT
+# @File          : npx
+# @Description   : npx completion script
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+_npx() {
+  local cur_word options
+  local cur_word="${COMP_WORDS[$COMP_CWORD]}"
+  local PATH="./node_modules/.bin:./vendor/bin:$PATH"
+
+  _init_completion || return
+  if [[ "${cur_word}" == -* ]]; then
+    COMPREPLY=($(compgen -W '--help --version' -- "${cur_word}"))
+    return 0
+  else
+    complete -A command npx
+  fi
+} &&
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # enable completions
+  complete -F _npx npx
