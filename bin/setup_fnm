@@ -60,18 +60,19 @@ main() {
   cmd_exists --error bash curl git || exit 1
   am_i_online --error || return 1
   if [ -n "$NODE_MANAGER" ]; then
-    [ "$NODE_MANAGER" = "fnm" ] || exit 0
+    [ "$NODE_MANAGER" != "fnm" ] && exit 0
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   exitCode=0
-  export FNM_DIR="${FNM_DIR:-$HOME/.local/share/nodejs/fnm}"
-  export FNM_BIN="${FNM_BIN:-$HOME/.local/bin}"
-  export FNM_NODE_VERSION="${FNM_NODE_VERSION:-16}"
+  FNM_DIR="${FNM_DIR:-$HOME/.local/share/nodejs/fnm}"
+  FNM_BIN="${FNM_BIN:-$HOME/.local/bin}"
+  FNM_NODE_VERSION="${FNM_NODE_VERSION:-16}"
+  export FNM_DIR FNM_BIN FNM_NODE_VERSION
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [[ "$*" == "--remove" ]]; then
     printf_red "Removing FNM from your system"
-    rm -Rf "$FNM_DIR" "$FNM_BIN/fnm"
+    [[ -n "$FNM_DIR" ]] && rm -Rf "$FNM_DIR" "$FNM_BIN/fnm"
     if [ ! -d "$FNM_DIR/.git" ] && [ -z "$(command -v fnm 2>/dev/null)" ]; then
       printf_green "FNM Has been removed"
     fi
@@ -79,7 +80,7 @@ main() {
   fi
 
   printf_red "installing NVM to $FNM_DIR"
-  mkdir -p "$FNM_BIN" "$FNM_DIR"
+  mkdir -p "$FNM_DIR"
   if [ -d "$FNM_DIR/.git" ]; then
     printf_blue "Updating NVM"
     git -C $FNM_DIR pull -q &>/dev/null

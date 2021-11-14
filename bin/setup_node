@@ -50,7 +50,6 @@ SETUP_NODE_CONFIG_DIR="$HOME/.config/setup_node/settings.conf"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set functions
-printf_color() { printf "%b" "$(tput setaf "$1" 2>/dev/null)" "\t\t$2\n" "$(tput sgr0 2>/dev/null)"; }
 __version() {
   command="$(type -P "setup_node")"
   grep -E '[".#] @[A-Z]' "$command"
@@ -58,6 +57,7 @@ __version() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __help() {
+  printf_color() { printf "%b" "$(tput setaf "$1" 2>/dev/null)" "\t\t$2\n" "$(tput sgr0 2>/dev/null)"; }
   printf_color "4" "$(grep ^"# @Description" "setup_node | grep ' : " || setup_node help)"
   printf_color "4" "usage: setup_node  |  setup_node --version"
   exit
@@ -81,7 +81,7 @@ __node_check() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __install_node() {
   local exitCode=0
-  sudoif || printf_exit 1 1 "This requires access to sudo"
+  sudoif || printf_exit "This requires access to sudo"
   if cmd_exists apt-cache; then
     sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_DEB")" &&
       sudo apt update &&
