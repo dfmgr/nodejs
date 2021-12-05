@@ -241,7 +241,14 @@ github-feed-cli)
   cmd_exists npm && __node_install "-g" "github-feed-cli"
   ;;
 *)
-  __node_check || __install_node
+  if [[ $# -eq 0 ]]; then
+    __node_check || __install_node
+  elif [[ "$1" = "npx" ]]; then
+    shift 1
+    cmd_exists npx && npx "$*"
+  else
+    cmd_exists npm && __node_install "-g" "$@"
+  fi
   ;;
 esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
