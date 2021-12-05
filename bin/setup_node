@@ -51,7 +51,7 @@ SETUP_NODE_CONFIG_DIR="$HOME/.config/setup_node/settings.conf"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set functions
 __version() {
-  command="$(type -P "setup_node")"
+  command="$(type -P "$PROG")"
   grep -E '[".#] @[A-Z]' "$command"
   grep -E '[".#]#@[A-Z]' "$command"
 }
@@ -77,6 +77,36 @@ __node_check() {
   else
     return 1
   fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# npm command
+__node_install() {
+  if [[ "$1" = "-g" ]]; then
+    shift 1
+    local npmopts="-g"
+  else
+    local npmopts=""
+  fi
+  local exitCode=0
+  local args="$*"
+  if [ "$(command -v fnm 2>/dev/null)" ]; then
+    printf_green "Installing $args using npm from fnm "
+    npm i $npmopts $args &>/dev/null || exitCode=1
+  elif [ "$(command -v nvm 2>/dev/null)" ]; then
+    printf_green "Installing $args using npm from nvm "
+    npm i $npmopts $args &>/dev/null || exitCode=1
+  else
+    printf_green "Installing $args using npm from system npm "
+    sudo npm i $npmopts $args &>/dev/null || exitCode=1
+  fi
+  if [[ "$exitCode" = 0 ]]; then
+    printf_blue "Successfully installed $args"
+    exitCode=0
+  else
+    printf_red "Failed to install $args"
+    exitCode=1
+  fi
+  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __install_node() {
@@ -114,7 +144,10 @@ INSTALL_SCRIPT_RPM="${INSTALL_SCRIPT_RPM:-https://rpm.nodesource.com/setup_curre
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bring in user config
 [ -f "$SETUP_NODE_CONFIG_DIR/settings.conf" ] && . "$SETUP_NODE_CONFIG_DIR/settings.conf"
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ARRAY="how2 emoj surge wikit vercel lessmd heroku eslint taskbook prettier vue "
+ARRAY+="gitio-cli now-config speed-test angular auto-install readme-md-generator "
+ARRAY+="npm-check-updates github-feed-cli"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main application
 case "$1" in
@@ -125,6 +158,87 @@ case "$1" in
 --version)
   shift 1
   __version
+  ;;
+--list)
+  shift 1
+  printf '%s\n' "$ARRAY" | tr ' ' '\n' | sort | column | printf_readline
+  exit
+  ;;
+how2)
+  shift 1
+  cmd_exists npm && __node_install "-g" "how2"
+  ;;
+emoj)
+  shift 1
+  cmd_exists npm && __node_install "-g" "emoj"
+  ;;
+surge)
+  shift 1
+  cmd_exists npm && __node_install "-g" "surge"
+  ;;
+wikit)
+  shift 1
+  cmd_exists npm && __node_install "-g" "wikit"
+  ;;
+vercel)
+  shift 1
+  cmd_exists npm && __node_install "-g" "vercel"
+  ;;
+lessmd)
+  shift 1
+  cmd_exists npm && __node_install "-g" "lessmd"
+  ;;
+heroku)
+  shift 1
+  cmd_exists npm && __node_install "-g" "heroku"
+  ;;
+eslint)
+  shift 1
+  cmd_exists npm && __node_install "-g" "eslint"
+  ;;
+taskbook)
+  shift 1
+  cmd_exists npm && __node_install "-g" "taskbook"
+  ;;
+prettier)
+  shift 1
+  cmd_exists npm && __node_install "-g" "prettier"
+  ;;
+vue)
+  shift 1
+  cmd_exists npm && __node_install "-g" "@vue/cli"
+  ;;
+gitio-cli)
+  shift 1
+  cmd_exists npm && __node_install "-g" "gitio-cli"
+  ;;
+now-config)
+  shift 1
+  cmd_exists npm && __node_install "-g" "now-config"
+  ;;
+speed-test)
+  shift 1
+  cmd_exists npm && __node_install "-g" "speed-test"
+  ;;
+angular)
+  shift 1
+  cmd_exists npm && __node_install "-g" "@angular/cli"
+  ;;
+auto-install)
+  shift 1
+  cmd_exists npm && __node_install "-g" "auto-install"
+  ;;
+readme-md-generator)
+  shift 1
+  cmd_exists npm && __node_install "-g" "readme-md-generator"
+  ;;
+npm-check-updates)
+  shift 1
+  cmd_exists npm && __node_install "-g" "npm-check-updates"
+  ;;
+github-feed-cli)
+  shift 1
+  cmd_exists npm && __node_install "-g" "github-feed-cli"
   ;;
 *)
   __node_check || __install_node
