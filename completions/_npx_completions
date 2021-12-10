@@ -14,26 +14,22 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 _npx() {
-  ___find() { find -L $1 -type f -executable -printf "%f\n" 2>/dev/null; }
-  local nodeDirs dir execs cur
-  dir="$(pwd -P)"
-  dirg="$(npm bin -g)"
-  nodeDirs="$(echo "${NODE_PATH}" | tr ':' '\n')"
-  while [[ -n "$dir" ]]; do
-    if [[ -d "$dir/node_modules/.bin" ]]; then
-      dir="$dir/node_modules/.bin"
-      dir="${dir%/*}"
-      continue
-    fi
-    [[ -n "$dir" ]] && dir="${dir:-} "
-    [[ -n "$dirg" ]] && dir+="${dirg:-} "
-    [[ -n "$NODE_PATH" ]] && dir+="${NODE_PATH//://*/node_modules/.bin/* }"
-    execs=($(___find "$dir"))
-    execs=("${execs[@]/#.\//}")
-    cur=${COMP_WORDS[COMP_CWORD]}
-    COMPREPLY=($(compgen -W "${execs[*]}" -- "$cur"))
-    break
-  done
+  ___find() {
+    find -L "$@" -type f -executable -printf "%f\n" 2>/dev/null
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local dir dirg dirn execs cur
+  dir="$([[ -d "$(pwd -P 2>/dev/null)/node_modules/.bin" ]] && echo "$(pwd -P 2>/dev/null)/node_modules/.bin" || false)"
+  dirg="$([[ -d "$(npm bin -g 2>/dev/null)" ]] && echo "$(npm bin -g 2>/dev/null)" || false)"
+  dirn="${NODE_PATH//://*/node_modules/.bin/* }"
+  execs=($(
+    [[ -n "$dir" ]] && ___find $dir
+    [[ -n "$dirg" ]] && ___find $dirg
+    [[ -n "$dirn" ]] && ___find $dirn
+  ))
+  execs=("${execs[@]/#.\//}")
+  cur=${COMP_WORDS[COMP_CWORD]}
+  COMPREPLY=($(compgen -W "${execs[*]}" -- "$cur"))
 } &&
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # enable completions
