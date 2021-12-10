@@ -14,17 +14,26 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 _npx() {
-  local cur_word options
-  local cur_word="${COMP_WORDS[$COMP_CWORD]}"
-  local PATH="./node_modules/.bin:./vendor/bin:$PATH"
-
-  _init_completion || return
-  if [[ "${cur_word}" == -* ]]; then
-    COMPREPLY=($(compgen -W '--help --version' -- "${cur_word}"))
-    return 0
-  else
-    complete -A command npx
-  fi
+  ___find() { find -L $1 -type f -executable -printf "%f\n" 2>/dev/null; }
+  local nodeDirs dir execs cur
+  dir="$(pwd -P)"
+  dirg="$(npm bin -g)"
+  nodeDirs="$(echo "${NODE_PATH}" | tr ':' '\n')"
+  while [[ -n "$dir" ]]; do
+    if [[ -d "$dir/node_modules/.bin" ]]; then
+      dir="$dir/node_modules/.bin"
+      dir="${dir%/*}"
+      continue
+    fi
+    [[ -n "$dir" ]] && dir="${dir:-} "
+    [[ -n "$dirg" ]] && dir+="${dirg:-} "
+    [[ -n "$NODE_PATH" ]] && dir+="${NODE_PATH//://*/node_modules/.bin/* }"
+    execs=($(___find "$dir"))
+    execs=("${execs[@]/#.\//}")
+    cur=${COMP_WORDS[COMP_CWORD]}
+    COMPREPLY=($(compgen -W "${execs[*]}" -- "$cur"))
+    break
+  done
 } &&
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # enable completions
