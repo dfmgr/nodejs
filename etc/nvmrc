@@ -1,1 +1,1 @@
-prefix=$HOME/.local/share/nodejs/modules
+prefix="$HOME/.local/share/nodejs/modules"
