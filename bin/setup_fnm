@@ -1,25 +1,29 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="setup_fnm"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
+##@Version           :  202207042108-git
+# @Author            :  Jason Hempstead
+# @Contact           :  jason@casjaysdev.com
+# @License           :  LICENSE.md
+# @ReadME            :  setup_fnm --help
+# @Copyright         :  Copyright: (c) 2022 Jason Hempstead, Casjays Developments
+# @Created           :  Saturday, Jul 09, 2022 21:14 EDT
+# @File              :  setup_fnm
+# @Description       :  Fast Node Manager installer
+# @TODO              :
+# @Other             :
+# @Resource          :
+# @sudo/root         :  no
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+# Set bash options
+if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031520211424-git
-# @Author        : Jason Hempstead
-# @Contact       : jason@casjaysdev.com
-# @License       : WTFPL
-# @ReadME        : setup_fnm --help
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Monday, Mar 15, 2021 14:24 EDT
-# @File          : setup_fnm
-# @Description   : Fast Node Manager installer
-# @TODO          :
-# @Other         :
-# @Resource      :
+PROG="$(basename "$0")"
+VERSION="202207042108-git"
+HOME="${USER_HOME:-$HOME}"
+USER="${SUDO_USER:-$USER}"
+RUN_USER="${SUDO_USER:-$USER}"
+SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function file
 if [ -f "$SRC_DIR/functions.bash" ]; then
@@ -36,9 +40,10 @@ fi
 # helper function
 __version() { app_version; }
 __help() {
-  app_help "Usage: setup_fnm  -  setup_fnm --version" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
+  app_help "Usage: setup_fnm       -  setup_fnm --version" \
+    "$PROG --version               -  display version" \
+    "$PROG --help                  -  display help" \
+    "$PROG --force                 -  force install"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 installcmd() {
@@ -52,8 +57,12 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
   case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
+  --version) __version ;;
+  --help) __help ;;
+  --force)
+    shift 1
+    FORCE="true"
+    ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
