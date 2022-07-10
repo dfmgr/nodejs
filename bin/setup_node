@@ -1,25 +1,29 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="setup_node"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
+##@Version           :  202207042108-git
+# @Author            :  Jason Hempstead
+# @Contact           :  jason@casjaysdev.com
+# @License           :  LICENSE.md
+# @ReadME            :  setup_node --help
+# @Copyright         :  Copyright: (c) 2022 Jason Hempstead, Casjays Developments
+# @Created           :  Saturday, Jul 09, 2022 21:15 EDT
+# @File              :  setup_node
+# @Description       :  install nodejs on apt/yum based systems
+# @TODO              :
+# @Other             :
+# @Resource          :
+# @sudo/root         :  no
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+APPNAME="$(basename "$0")"
+VERSION="202207042108-git"
+HOME="${USER_HOME:-$HOME}"
+USER="${SUDO_USER:-$USER}"
+RUN_USER="${SUDO_USER:-$USER}"
 SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+# Set bash options
+if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202104150019-git
-# @Author        : Jason
-# @Contact       : jason@casjaysdev.com
-# @License       : WTFPL
-# @ReadME        : setup_node --help
-# @Copyright     : Copyright (c) 2021, Casjays Developments
-# @Created       : Thursday Apr 15, 2021 00:01:14 EDT
-# @File          : setup_node
-# @Description   : install nodejs on apt/yum based systems
-# @TODO          :
-# @Other         :
-# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function file
 if [ -f "$SRC_DIR/functions.bash" ]; then
