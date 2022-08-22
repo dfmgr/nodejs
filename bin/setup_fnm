@@ -47,7 +47,7 @@ __help() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 installcmd() {
-  curl -q -fsSL https://raw.githubusercontent.com/Schniz/fnm/master/.ci/install.sh |
+  curl -q -LSsf https://raw.githubusercontent.com/Schniz/fnm/master/.ci/install.sh |
     bash -s -- --install-dir "$HOME/.local/bin" --skip-shell >/dev/null 2>&1 &&
     return 0 || return 1
 }
@@ -69,7 +69,7 @@ main() {
   cmd_exists --error bash curl git || exit 1
   am_i_online --error || return 1
   if [ -n "$NODE_MANAGER" ]; then
-    [ "$NODE_MANAGER" != "fnm" ] && exit 0
+    [ "$NODE_MANAGER" = "fnm" ] || exit 0
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
@@ -99,9 +99,9 @@ main() {
   fi
   if [ -n "$(command -v fnm 2>/dev/null)" ]; then
     printf_blue "Setting up FNM"
-    eval $(fnm eval)
+    eval "$(fnm env)"
     fnm install "$FNM_NODE_VERSION" &>/dev/null
-    fnm ls | grep -q "$FNM_NODE_VERSION" && fnm use "$FNM_NODE_VERSION" &>/dev/null
+    fnm ls | grep -q "$FNM_NODE_VERSION" && fnm use "$FNM_NODE_VERSION" &>/dev/null && fnm default "$FNM_NODE_VERSION" &>/dev/null
   fi
   if [ -n "$(command -v fnm 2>/dev/null)" ]; then
     printf_green "FNM has been installed"

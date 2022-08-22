@@ -69,7 +69,7 @@ __help() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __install_yarn() {
   printf "Installing yarn\n"
-  sudo bash -c "$(curl -q -fsSL https://yarnpkg.com/install.sh &>/dev/null)"
+  sudo bash -c "$(curl -q -LSsf https://yarnpkg.com/install.sh &>/dev/null)"
   cmd_exists yarn && return 0 || return 1
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -95,6 +95,7 @@ __node_install() {
   local args="$*"
   if [ "$(command -v fnm 2>/dev/null)" ]; then
     printf_green "Installing $args using npm from fnm "
+    eval "$(fnm env)"
     npm i $npmopts $args &>/dev/null || exitCode=1
   elif [ "$(command -v nvm 2>/dev/null)" ]; then
     printf_green "Installing $args using npm from nvm "
@@ -117,17 +118,17 @@ __install_node() {
   local exitCode=0
   sudoif || printf_exit "This requires access to sudo"
   if cmd_exists apt-cache; then
-    sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_DEB")" &&
+    sudo bash -c "$(curl -q -LSsf "$INSTALL_SCRIPT_DEB")" &&
       sudo apt update &&
       sudo apt install -yy build-essential &&
       sudo apt install -yy nodejs &&
       sudo apt autoremove -yy || exitCode=1
   elif cmd_exists yum; then
-    sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_RPM")" &&
+    sudo bash -c "$(curl -q -LSsf "$INSTALL_SCRIPT_RPM")" &&
       sudo yum groupinstall -y 'Development Tools' &&
       sudo yum install -y nodejs || exitCode=1
   elif cmd_exists dnf; then
-    sudo bash -c "$(curl -q -fsSL "$INSTALL_SCRIPT_RPM")" &&
+    sudo bash -c "$(curl -q -LSsf "$INSTALL_SCRIPT_RPM")" &&
       sudo dnf groupinstall -y 'Development Tools' &&
       sudo dnf install -y nodejs || exitCode=1
   else
@@ -151,7 +152,7 @@ INSTALL_SCRIPT_RPM="${INSTALL_SCRIPT_RPM:-https://rpm.nodesource.com/setup_curre
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ARRAY="how2 emoj surge wikit vercel lessmd heroku eslint taskbook prettier vue "
 ARRAY+="gitio-cli now-config speed-test angular auto-install readme-md-generator "
-ARRAY+="npm-check-updates github-feed-cli"
+ARRAY+="npm-check-updates github-feed-cli heroku"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main application
 case "$1" in
@@ -243,6 +244,10 @@ npm-check-updates)
 github-feed-cli)
   shift 1
   cmd_exists npm && __node_install "-g" "github-feed-cli"
+  ;;
+heroku)
+  shift 1
+  cmd_exists npm && __node_install "-g" "heroku"
   ;;
 *)
   if [[ $# -eq 0 ]]; then
