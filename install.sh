@@ -58,7 +58,8 @@ run_pre_install() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Define custom functions
-
+nodejs() { __cmd_exists node || __cmd_exists nodejs || return 1; }
+export -f nodejs
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Call the main function
 dfmgr_install
