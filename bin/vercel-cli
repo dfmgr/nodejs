@@ -31,10 +31,8 @@ __help() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __init() {
   vercel="$(builtin type -P vercel || builtin type -P now || echo '')"
-  if builtin type -P npm 2>/dev/null && [ -z "$vercel" ]; then
-    npm i -g vercel &>/dev/null &&
-      builtin type -P vercel 2>/dev/null &&
-      vercel "$*"
+  if builtin type -p npm &>/dev/null && [ -z "$vercel" ]; then
+    npm i -g vercel &>/dev/null && builtin type -P vercel 2>/dev/null || printf_exit "Failed to install vercel"
     return $?
   else
     return 0
@@ -43,7 +41,7 @@ __init() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __setup_vercel() {
   if [ -f "$vercel" ]; then
-    $vercel "$*"
+    eval $vercel "$@"
     return $?
   else
     printf_red "Neither vercel nor now is installed"
@@ -64,20 +62,31 @@ main() {
   case $1 in
   -v | --version) __version ;;
   -h | --help) __help ;;
+  --all) shift 1 && SETUP_VERCEL_RM_ALL="true" ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __init "$*"
-  if [ $# = 0 ]; then
+  __init "$@"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if [ "$SETUP_VERCEL_RM_ALL" = "true" ]; then
+    rm_list="$(__setup_vercel ls $1 2>&1 | grep http.*// | awk '{print $2}')"
+    for app in $rm_list; do
+      __setup_vercel rm --safe --yes $app
+    done
+    return $?
+  elif [ "$1" = "prod" ]; then
+    __setup_vercel deploy --prod
+    return $?
+  elif [ "$1" = "deploy" ]; then
+    __setup_vercel deploy
+    return $?
+  elif [ $# = 0 ]; then
     __setup_vercel ls
     return $?
+  elif [ $# -ne 0 ]; then
+    __setup_vercel "$@"
+    return $?
   else
-    if [ "$1" = "--all" ]; then
-      for app in $(__setup_vercel ls | grep http.*// | awk '{print $2}'); do
-        __setup_vercel rm "$app" --safe --yes
-      done && return 0 || return 1
-    else
-      __setup_vercel rm $1 --safe --yes && return 0 || return 1
-    fi
+    __setup_vercel rm --safe --yes $1 && return 0 || return 1
   fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
