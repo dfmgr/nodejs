@@ -1,83 +1,90 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+# shellcheck shell=sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version           :  202207042108-git
-# @Author            :  Jason Hempstead
-# @Contact           :  jason@casjaysdev.com
-# @License           :  LICENSE.md
-# @ReadME            :  setup_node --help
-# @Copyright         :  Copyright: (c) 2022 Jason Hempstead, Casjays Developments
-# @Created           :  Saturday, Jul 09, 2022 21:15 EDT
-# @File              :  setup_node
-# @Description       :  install nodejs on apt/yum based systems
-# @TODO              :
-# @Other             :
-# @Resource          :
-# @sudo/root         :  no
+##@Version           :  202305010900-git
+# @@Author           :  Jason Hempstead
+# @@Contact          :  jason@casjaysdev.com
+# @@License          :  WTFPL
+# @@ReadME           :  setup_node --help
+# @@Copyright        :  Copyright: (c) 2023 Jason Hempstead, Casjays Developments
+# @@Created          :  Monday, May 01, 2023 09:00 EDT
+# @@File             :  setup_node
+# @@Description      :  install nodejs on apt/yum based systems
+# @@Changelog        :  New script
+# @@TODO             :  Better documentation
+# @@Other            :
+# @@Resource         :
+# @@Terminal App     :  no
+# @@sudo/root        :  no
+# @@Template         :  shell/sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-APPNAME="$(basename "$0")"
-VERSION="202207042108-git"
-HOME="${USER_HOME:-$HOME}"
-USER="${SUDO_USER:-$USER}"
-RUN_USER="${SUDO_USER:-$USER}"
-SRC_DIR="${BASH_SOURCE%/*}"
+# shellcheck disable=SC2317
+# shellcheck disable=SC2120
+# shellcheck disable=SC2155
+# shellcheck disable=SC2199
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Set bash options
-if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
-
+APPNAME="$(basename "$0" 2>/dev/null)"
+VERSION="202305010900-git"
+RUN_USER="$USER"
+SET_UID="$(id -u)"
+SCRIPT_SRC_DIR="$(cd "$(dirname "$0")" && pwd)"
+SETUP_NODE_CWD="$(realpath "$PWD")"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function file
-if [ -f "$SRC_DIR/functions.bash" ]; then
-  FUNCTIONS_DIR="$SRC_DIR"
-  . "$FUNCTIONS_DIR/functions.bash"
-elif [ -f "$HOME/.local/bin/functions.bash" ]; then
-  FUNCTIONS_DIR="$HOME/.local/bin"
-  . "$FUNCTIONS_DIR/functions.bash"
+# colorization
+if [ "$SHOW_RAW" = "true" ]; then
+  __printf_color() { printf '%b' "$1\n" | tr -d '\t' | sed '/^%b$/d;s,\x1B\[ 0-9;]*[a-zA-Z],,g'; }
 else
-  printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
-  return 1
+  __printf_color() { { [ -z "$2" ] || DEFAULT_COLOR=$2; } && printf "%b" "$(tput setaf "$DEFAULT_COLOR" 2>/dev/null)" "$1\n" "$(tput sgr0 2>/dev/null)"; }
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# helper function
-__version() { app_version; }
-__help() {
-  app_help "Usage: setup_fnm  -  setup_fnm --version" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-}
+# check for command
+__cmd_exists() { which $1 >/dev/null 2>&1 || return 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Check for needed applications
-cmd_exists bash || exit 1 # exit if not found
+# custom functions
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Set variables
-SETUP_NODE_CONFIG_DIR="$HOME/.config/setup_node/settings.conf"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Set functions
-__version() {
-  command="$(type -P "$APPNAME")"
-  grep -E '[".#] @[A-Z]' "$command"
-  grep -E '[".#]#@[A-Z]' "$command"
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__help() {
-  printf_color() { printf "%b" "$(tput setaf "$1" 2>/dev/null)" "\t\t$2\n" "$(tput sgr0 2>/dev/null)"; }
-  printf_color "4" "$(grep ^"# @Description" "setup_node | grep ' : " || setup_node help)"
-  printf_color "4" "usage: setup_node  |  setup_node --version"
-  exit
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Set additional variables
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# bring in user config
-[ -f "$SETUP_NODE_CONFIG_DIR/settings.conf" ] && . "$SETUP_NODE_CONFIG_DIR/settings.conf"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+# Define variables
+DEFAULT_COLOR="254"
+SETUP_NODE_EXIT_STATUS=0
+[ -n "$SETUP_NODE_NPM_PACKAGES" ] || SETUP_NODE_NPM_PACKAGES="vercel prettier eslint npm-check-updates"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main application
-
+case "$1" in
+remove)
+  shift 1
+  if __cmd_exists npm; then
+    [ $# -eq 0 ] || SETUP_NODE_NPM_PACKAGES="$*"
+    for npm_pkg in $SETUP_NODE_NPM_PACKAGES; do
+      if __cmd_exists $npm_pkg; then
+        __printf_color "Removing $npm_pkg" 6 && npm uninstall -g $npm_pkg >/dev/null 2>&1 || { __printf_color "Failed to remove $npm_pkg" 1 >/dev/null 2>&1 || return 1; }
+        [ $? -eq 0 ] || __printf_color "Failed to remove $npm_pkg" 1 >&2
+      else
+        __printf_color "$npm_pkg is not installed" 1 >&2
+      fi
+    done
+  else
+    __printf_color "nodejs is not installed" 1 >&2
+    SETUP_NODE_EXIT_STATUS=1
+  fi
+  ;;
+*)
+  if __cmd_exists npm; then
+    [ $# -eq 0 ] || SETUP_NODE_NPM_PACKAGES="$*"
+    for npm_pkg in $SETUP_NODE_NPM_PACKAGES; do
+      __cmd_exists $npm_pkg && __printf_color "npm package $npm_pkg is already installed" 6 || { __printf_color "Installing $npm_pkg" 3 && npm i -g $npm_pkg >/dev/null 2>&1; }
+      [ $? -eq 0 ] || __printf_color "Failed to install $npm_pkg" 1 >&2
+    done
+  else
+    __printf_color "nodejs is not installed" 1 >&2
+    SETUP_NODE_EXIT_STATUS=1
+  fi
+  ;;
+esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-exit $?
+# End application
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# end
+# lets exit with code
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $SETUP_NODE_EXIT_STATUS
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# ex: ts=2 sw=2 et filetype=sh
