@@ -66,11 +66,11 @@ __setup_vercel() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __remove_old() {
   if [ "$SETUP_VERCEL_RM_ALL" = "true" ] || [ "$VERCEL_CLI_REMOVE_OLD" = "yes" ]; then
-    rm_list="$(__setup_vercel ls $1 2>&1 | grep http.*// | awk '{print $2}')"
+    rm_list="$(__setup_vercel ls $1 2>&1 | grep -iE 'Production|Preview' | grep -E 'http.*//|https.*//' | awk '{print $2}')"
     for app in $rm_list; do
       __setup_vercel rm --safe --yes $app
     done
-    rm_list="$(__setup_vercel ls $1 2>&1 | grep http.*// | awk '{print $2}' | wc -l)"
+    rm_list="$(__setup_vercel ls $1 2>&1 | grep -iE 'Production|Preview' | grep -E 'http.*//|https.*//' | awk '{print $2}' | wc -l)"
     if [ "$rm_list" -gt 1 ]; then
       __remove_old $1
     fi
