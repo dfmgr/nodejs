@@ -109,12 +109,17 @@ done
 case "$1" in
 prod | production)
   __init_bin
-  __setup_vercel deploy --prod && __remove_old
+  __setup_vercel deploy --prod && SETUP_VERCEL_RM_ALL="true" __remove_old
   exit $?
   ;;
 deploy)
   __init_bin
-  __setup_vercel deploy && __remove_old
+  __setup_vercel deploy && SETUP_VERCEL_RM_ALL="true" __remove_old
+  exit $?
+  ;;
+remove)
+  shift 1
+  SETUP_VERCEL_RM_ALL="true" __remove_old "$@"
   exit $?
   ;;
 *)
