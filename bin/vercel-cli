@@ -1,5 +1,5 @@
-#!/usr/bin/env sh
-# shellcheck shell=sh
+#!/usr/bin/env bash
+# shellcheck shell=bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version           :  202305011029-git
 # @@Author           :  Jason Hempstead
@@ -16,7 +16,7 @@
 # @@Resource         :
 # @@Terminal App     :  no
 # @@sudo/root        :  no
-# @@Template         :  shell/sh
+# @@Template         :  shell/bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shellcheck disable=SC2317
 # shellcheck disable=SC2120
