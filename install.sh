@@ -61,15 +61,15 @@ SCRIPTSFUNCTFILE="${SCRIPTSAPPFUNCTFILE:-mgr-installers.bash}"
 SCRIPTSFUNCTURL="${SCRIPTSAPPFUNCTURL:-https://github.com/dfmgr/installer/raw/main/functions}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ -f "$PWD/$SCRIPTSFUNCTFILE" ]; then
-  . "$PWD/$SCRIPTSFUNCTFILE"
+	. "$PWD/$SCRIPTSFUNCTFILE"
 elif [ -f "$SCRIPTSFUNCTDIR/$SCRIPTSFUNCTFILE" ]; then
-  . "$SCRIPTSFUNCTDIR/$SCRIPTSFUNCTFILE"
+	. "$SCRIPTSFUNCTDIR/$SCRIPTSFUNCTFILE"
 elif connect_test; then
-  curl -q -LSsf "$SCRIPTSFUNCTURL/$SCRIPTSFUNCTFILE" -o "/tmp/$SCRIPTSFUNCTFILE" || exit 1
-  . "/tmp/$SCRIPTSFUNCTFILE"
+	curl -q -LSsf "$SCRIPTSFUNCTURL/$SCRIPTSFUNCTFILE" -o "/tmp/$SCRIPTSFUNCTFILE" || exit 1
+	. "/tmp/$SCRIPTSFUNCTFILE"
 else
-  echo "Can not load the functions file: $SCRIPTSFUNCTDIR/$SCRIPTSFUNCTFILE" 1>&2
-  exit 90
+	echo "Can not load the functions file: $SCRIPTSFUNCTDIR/$SCRIPTSFUNCTFILE" 1>&2
+	exit 90
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Define custom functions
@@ -179,58 +179,58 @@ PYTHON_PIP=""
 PHP_COMPOSER=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Run custom actions
-
+if_os_id arch && GLOBAL_OS_PACKAGES=node
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Show a custom message after install
 __run_post_message() {
-  true
+	true
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Define pre-install scripts
 __run_pre_install() {
-  local getRunStatus=0
+	local getRunStatus=0
 
-  return $getRunStatus
+	return $getRunStatus
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run before primary post install function
 __run_prepost_install() {
-  local getRunStatus=0
+	local getRunStatus=0
 
-  return $getRunStatus
+	return $getRunStatus
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run after primary post install function
 __run_post_install() {
-  local getRunStatus=0
-  local PATH="$INSTDIR/bin:$PATH"
-  [ -n "$NODE_MANAGER" ] || NODE_MANAGER="fnm"
-  [ -f "$HOME/.nvmrc" ] || __symlink "$APPDIR/nvmrc" "$HOME/.nvmrc"
-  if [ "$NODE_MANAGER" = "fnm" ] && __cmd_exists setup_fnm; then
-    setup_fnm
-  elif [ "$NODE_MANAGER" = "nvm" ] && __cmd_exists setup_nvm; then
-    __cmd_exists setup_nvm
-  fi
-  __cmd_exists setup_node && setup_node
-  return $getRunStatus
+	local getRunStatus=0
+	local PATH="$INSTDIR/bin:$PATH"
+	[ -n "$NODE_MANAGER" ] || NODE_MANAGER="fnm"
+	[ -f "$HOME/.nvmrc" ] || __symlink "$APPDIR/nvmrc" "$HOME/.nvmrc"
+	if [ "$NODE_MANAGER" = "fnm" ] && __cmd_exists setup_fnm; then
+		setup_fnm
+	elif [ "$NODE_MANAGER" = "nvm" ] && __cmd_exists setup_nvm; then
+		__cmd_exists setup_nvm
+	fi
+	__cmd_exists setup_node && setup_node
+	return $getRunStatus
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Custom plugin function
 __custom_plugin() {
-  local getRunStatus=0
-  # execute "__run_git_clone_pull repo dir" "Installing plugName"
-  return $getRunStatus
+	local getRunStatus=0
+	# execute "__run_git_clone_pull repo dir" "Installing plugName"
+	return $getRunStatus
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute build script if exists and install failed or set BUILD_SCRIPT_REBUILD to true to always rebuild
 __run_build_script() {
-  local getRunStatus=0
-  if ! __cmd_exists "$BUILD_NAME" && [ -f "$INSTDIR/build.sh" ]; then
-    export BUILD_NAME BUILD_SCRIPT_SRC_DIR BUILD_SRC_URL BUILD_SCRIPT_REBUILD
-    [ -x "$INSTDIR/build.sh" ] || chmod 755 "$INSTDIR/build.sh"
-    eval "$INSTDIR/build.sh"
-  fi
-  return $getRunStatus
+	local getRunStatus=0
+	if ! __cmd_exists "$BUILD_NAME" && [ -f "$INSTDIR/build.sh" ]; then
+		export BUILD_NAME BUILD_SCRIPT_SRC_DIR BUILD_SRC_URL BUILD_SCRIPT_REBUILD
+		[ -x "$INSTDIR/build.sh" ] || chmod 755 "$INSTDIR/build.sh"
+		eval "$INSTDIR/build.sh"
+	fi
+	return $getRunStatus
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other dependencies
@@ -250,27 +250,27 @@ if_os_id arch && ARCH_USER_REPO="$AUR_PACKAGES"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # define linux packages
 if if_os linux; then
-  if if_os_id arch; then
-    SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $LINUX_OS_PACKAGES $ARCH_OS_PACKAGES"
-  elif if_os_id centos; then
-    SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $LINUX_OS_PACKAGES $CENTOS_OS_PACKAGES"
-  elif if_os_id debian; then
-    SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $LINUX_OS_PACKAGES $DEBIAN_OS_PACKAGES"
-  elif if_os_id ubuntu; then
-    SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $LINUX_OS_PACKAGES $UBUNTU_OS_PACKAGES"
-  else
-    SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $LINUX_OS_PACKAGES"
-  fi
+	if if_os_id arch; then
+		SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $LINUX_OS_PACKAGES $ARCH_OS_PACKAGES"
+	elif if_os_id centos; then
+		SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $LINUX_OS_PACKAGES $CENTOS_OS_PACKAGES"
+	elif if_os_id debian; then
+		SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $LINUX_OS_PACKAGES $DEBIAN_OS_PACKAGES"
+	elif if_os_id ubuntu; then
+		SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $LINUX_OS_PACKAGES $UBUNTU_OS_PACKAGES"
+	else
+		SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $LINUX_OS_PACKAGES"
+	fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Define MacOS packages - homebrew
 if if_os mac; then
-  SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $MAC_OS_PACKAGES"
+	SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $MAC_OS_PACKAGES"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Define Windows packages - choco
 if if_os win; then
-  SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $WIN_OS_PACKAGES"
+	SYSTEM_PACKAGES="$GLOBAL_OS_PACKAGES $WIN_OS_PACKAGES"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Attempt install from github release
@@ -316,15 +316,15 @@ ensure_perms
 # Get configuration files
 instCode=0
 if __am_i_online; then
-  if [ -d "$INSTDIR/.git" ]; then
-    execute "__run_git_clone_pull $INSTDIR" "Updating $APPNAME configurations"
-    instCode=$?
-  else
-    execute "__run_git_clone_pull $REPO $INSTDIR" "Installing $APPNAME configurations"
-    instCode=$?
-  fi
-  # exit on fail
-  __failexitcode $instCode "Failed to setup the git repo from $REPO"
+	if [ -d "$INSTDIR/.git" ]; then
+		execute "__run_git_clone_pull $INSTDIR" "Updating $APPNAME configurations"
+		instCode=$?
+	else
+		execute "__run_git_clone_pull $REPO $INSTDIR" "Installing $APPNAME configurations"
+		instCode=$?
+	fi
+	# exit on fail
+	__failexitcode $instCode "Failed to setup the git repo from $REPO"
 fi
 unset instCode
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -332,36 +332,36 @@ unset instCode
 exitC=0
 exitCodeP=0
 if __am_i_online; then
-  if [ "$PLUGIN_REPOS" != "" ]; then
-    [ -d "$PLUGIN_DIR" ] || mkdir -p "$PLUGIN_DIR"
-    for plugin in $PLUGIN_REPOS; do
-      plugin_name="$(basename "$plugin")"
-      plugin_dir="$PLUGIN_DIR/$plugin_name"
-      if [ -d "$plugin_dir/.git" ]; then
-        execute "git_update $plugin_dir" "Updating plugin $plugin_name"
-        exitC=$?
-        [ $exitC -ne 0 ] && exitCodeP=$((exitC + exitCodeP)) && printf_red "Failed to update $plugin_name"
-      else
-        execute "git_clone $plugin $plugin_dir" "Installing plugin $plugin_name"
-        exitC=$?
-        [ $exitC -ne 0 ] && exitCodeP=$((exitC + exitCodeP)) && printf_red "Failed to install $plugin_name"
-      fi
-    done
-  fi
-  __custom_plugin
-  exitCodeP=$(($? + exitCodeP))
-  # exit on fail
-  __failexitcode $exitCodeP "Installation of plugin failed"
+	if [ "$PLUGIN_REPOS" != "" ]; then
+		[ -d "$PLUGIN_DIR" ] || mkdir -p "$PLUGIN_DIR"
+		for plugin in $PLUGIN_REPOS; do
+			plugin_name="$(basename "$plugin")"
+			plugin_dir="$PLUGIN_DIR/$plugin_name"
+			if [ -d "$plugin_dir/.git" ]; then
+				execute "git_update $plugin_dir" "Updating plugin $plugin_name"
+				exitC=$?
+				[ $exitC -ne 0 ] && exitCodeP=$((exitC + exitCodeP)) && printf_red "Failed to update $plugin_name"
+			else
+				execute "git_clone $plugin $plugin_dir" "Installing plugin $plugin_name"
+				exitC=$?
+				[ $exitC -ne 0 ] && exitCodeP=$((exitC + exitCodeP)) && printf_red "Failed to install $plugin_name"
+			fi
+		done
+	fi
+	__custom_plugin
+	exitCodeP=$(($? + exitCodeP))
+	# exit on fail
+	__failexitcode $exitCodeP "Installation of plugin failed"
 fi
 unset exitCodeP exitC
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run post install scripts
 run_postinst() {
-  local exitCodeP=0
-  __run_prepost_install || exitCodeP=$((exitCodeP + 1))
-  dfmgr_run_post || exitCodeP=$((exitCodeP + 1))
-  __run_post_install || exitCodeP=$((exitCodeP + 1))
-  return $exitCodeP
+	local exitCodeP=0
+	__run_prepost_install || exitCodeP=$((exitCodeP + 1))
+	dfmgr_run_post || exitCodeP=$((exitCodeP + 1))
+	__run_post_install || exitCodeP=$((exitCodeP + 1))
+	return $exitCodeP
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run post install scripts
