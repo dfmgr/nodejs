@@ -199,8 +199,8 @@ __run_prepost_install() {
 	local nodeBin="" nodejsBin=""
 	nodeBin="$(builtin type -P node 2>/dev/null || false)"
 	nodejsBin="$(builtin type -P nodejs 2>/dev/null || false)"
-	[ -f "$nodeBin" ] && [ ! -e "$nodejsBin" ]; then
-ln -sf "$nodeBin" "$nodejsBin"
+	if [ -f "$nodeBin" ] && [ ! -e "$nodejsBin" ]; then
+		ln -sf "$nodeBin" "$nodejsBin"
 	fi
 	return $getRunStatus
 }
