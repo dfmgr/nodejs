@@ -196,7 +196,12 @@ __run_pre_install() {
 # run before primary post install function
 __run_prepost_install() {
 	local getRunStatus=0
-
+	local nodeBin="" nodejsBin=""
+	nodeBin="$(builtin type -P node 2>/dev/null || false)"
+	nodejsBin="$(builtin type -P nodejs 2>/dev/null || false)"
+	[ -f "$nodeBin" ] && [ ! -e "$nodejsBin" ]; then
+ln -sf "$nodeBin" "$nodejsBin"
+	fi
 	return $getRunStatus
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
