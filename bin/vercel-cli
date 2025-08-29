@@ -32,9 +32,9 @@ VERCEL_CLI_CWD="$(realpath "$PWD")"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # colorization
 if [ "$SHOW_RAW" = "true" ]; then
-  __printf_color() { printf '%b' "$1\n" | tr -d '\t' | sed '/^%b$/d;s,\x1B\[ 0-9;]*[a-zA-Z],,g'; }
+	__printf_color() { printf '%b' "$1\n" | tr -d '\t' | sed '/^%b$/d;s,\x1B\[ 0-9;]*[a-zA-Z],,g'; }
 else
-  __printf_color() { { [ -z "$2" ] || DEFAULT_COLOR=$2; } && printf "%b" "$(tput setaf "$DEFAULT_COLOR" 2>/dev/null)" "$1\n" "$(tput sgr0 2>/dev/null)"; }
+	__printf_color() { { [ -z "$2" ] || DEFAULT_COLOR=$2; } && printf "%b" "$(tput setaf "$DEFAULT_COLOR" 2>/dev/null)" "$1\n" "$(tput sgr0 2>/dev/null)"; }
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # check for command
@@ -42,40 +42,47 @@ __cmd_exists() { which $1 >/dev/null 2>&1 || return 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # custom functions
 __init_bin() {
-  [ -z "$VERCEL_CLI_BIN" ] || return 0
-  if
-    __cmd_exists >/dev/null 2>&1 && [ -z "$VERCEL_CLI_BIN" ]
-  then
-    npm i -g vercel >/dev/null 2>&1 && __cmd_exists vercel 2>/dev/null || __printf_color "Failed to install vercel" 1 >&2
-    return $?
-  else
-    return 0
-  fi
+	[ -z "$VERCEL_CLI_BIN" ] || return 0
+	if
+		__cmd_exists >/dev/null 2>&1 && [ -z "$VERCEL_CLI_BIN" ]
+	then
+		npm i -g vercel >/dev/null 2>&1 && __cmd_exists vercel 2>/dev/null || __printf_color "Failed to install vercel" 1 >&2
+		return $?
+	else
+		return 0
+	fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __setup_vercel() {
-  if [ -f "$VERCEL_CLI_BIN" ]; then
-    eval $VERCEL_CLI_BIN "$@"
-    return $?
-  else
-    __printf_color "Neither vercel nor now is installed" 1
-    __printf_color "'npm i -g vercel' or 'yarn global add vercel'" 3
-    return 1
-  fi
+	if [ -f "$VERCEL_CLI_BIN" ]; then
+		eval $VERCEL_CLI_BIN "$@"
+		return $?
+	else
+		__printf_color "Neither vercel nor now is installed" 1
+		__printf_color "'npm i -g vercel' or 'yarn global add vercel'" 3
+		return 1
+	fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __remove_old() {
-  if [ "$SETUP_VERCEL_RM_ALL" = "true" ] || [ "$VERCEL_CLI_REMOVE_OLD" = "yes" ]; then
-    rm_list="$(__setup_vercel ls $1 2>&1 | grep -iE 'Production|Preview' | grep -E 'http.*//|https.*//' | awk '{print $2}')"
-    for app in $rm_list; do
-      __setup_vercel rm --safe --yes $app
-    done
-    rm_list="$(__setup_vercel ls $1 2>&1 | grep -iE 'Production|Preview' | grep -E 'http.*//|https.*//' | awk '{print $2}' | wc -l)"
-    if [ "$rm_list" -gt 1 ]; then
-      __remove_old $1
-    fi
-    return $?
-  fi
+	local exitCode=0 statusCode=0
+	if [ "$SETUP_VERCEL_RM_ALL" = "true" ] || [ "$VERCEL_CLI_REMOVE_OLD" = "yes" ]; then
+		if [ $# -eq 0 ]; then
+			rm_list="$(__setup_vercel ls $1 2>&1 | grep -iE 'Production|Preview' | grep -E 'http.*//|https.*//' | awk '{print $2}')"
+			for app in $rm_list; do
+				__setup_vercel rm --safe --yes $app
+				statusCode=$?
+				exitCode=$((exitCode + statusCode))
+			done
+		else
+			rm_list="$(__setup_vercel ls $1 2>&1 | grep -iE 'Production|Preview' | grep -E 'http.*//|https.*//' | awk '{print $2}' | wc -l)"
+			if [ "$rm_list" -gt 1 ]; then
+				__setup_vercel rm --safe --yes $1
+				exitCode=$?
+			fi
+		fi
+	fi
+	return $exitCode
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Define variables
@@ -88,55 +95,58 @@ VERCEL_CLI_EXIT_STATUS=0
 setopts=$(getopt -o "h,r,v:" --long "help,remove," -a -n "$APPNAME" -- "$@" 2>/dev/null)
 eval set -- "$setopts" 2>/dev/null
 while :; do
-  case "$1" in
-  --help | -h)
-    shift 1
-    __printf_color "Usage: $APPNAME --[remove] [prod,deploy]"
-    exit
-    ;;
-  --remove | -r)
-    shift 1
-    SETUP_VERCEL_RM_ALL="true"
-    ;;
-  --)
-    shift 1
-    break
-    ;;
-  esac
+	case "$1" in
+	--help | -h)
+		shift 1
+		__printf_color "Usage: $APPNAME --[remove] [prod,deploy]"
+		exit
+		;;
+	--remove | -r)
+		shift 1
+		SETUP_VERCEL_RM_ALL="true"
+		;;
+	--)
+		shift 1
+		break
+		;;
+	esac
 done
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main application
 case "$1" in
 prod | production)
-  __init_bin
-  __setup_vercel deploy --prod && SETUP_VERCEL_RM_ALL="true" __remove_old
-  exit $?
-  ;;
+	__init_bin
+	__setup_vercel deploy --prod && SETUP_VERCEL_RM_ALL="true"
+	__remove_old
+	exit $?
+	;;
 deploy)
-  __init_bin
-  __setup_vercel deploy && SETUP_VERCEL_RM_ALL="true" __remove_old
-  exit $?
-  ;;
+	__init_bin
+	__setup_vercel deploy && SETUP_VERCEL_RM_ALL="true"
+	__remove_old
+	exit $?
+	;;
 remove)
-  shift 1
-  SETUP_VERCEL_RM_ALL="true" __remove_old "$@"
-  exit $?
-  ;;
+	shift 1
+	SETUP_VERCEL_RM_ALL="true"
+	__remove_old "$@"
+	exit $?
+	;;
 *)
-  __init_bin
-  if [ "$SETUP_VERCEL_RM_ALL" = "true" ]; then
-    __remove_old "$@"
-  elif [ $# = 0 ]; then
-    __setup_vercel ls
-    VERCEL_CLI_EXIT_STATUS=$?
-  elif [ $# -ne 0 ]; then
-    __setup_vercel "$@"
-    VERCEL_CLI_EXIT_STATUS=$?
-  else
-    __setup_vercel "${@:---help}"
-    VERCEL_CLI_EXIT_STATUS=$?
-  fi
-  ;;
+	__init_bin
+	if [ "$SETUP_VERCEL_RM_ALL" = "true" ]; then
+		__remove_old "$@"
+	elif [ $# = 0 ]; then
+		__setup_vercel ls
+		VERCEL_CLI_EXIT_STATUS=$?
+	elif [ $# -ne 0 ]; then
+		__setup_vercel "$@"
+		VERCEL_CLI_EXIT_STATUS=$?
+	else
+		__setup_vercel "${@:---help}"
+		VERCEL_CLI_EXIT_STATUS=$?
+	fi
+	;;
 esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # End application
