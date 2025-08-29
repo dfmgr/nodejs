@@ -23,6 +23,7 @@
 # shellcheck disable=SC2120
 # shellcheck disable=SC2155
 # shellcheck disable=SC2199
+# shellcheck disable=SC2329
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 APPNAME="nodejs"
 VERSION="202304302239-git"
@@ -196,27 +197,27 @@ __run_pre_install() {
 # run before primary post install function
 __run_prepost_install() {
 	local getRunStatus=0
-	local nodeBin="" nodejsBin=""
-	nodeBin="$(builtin type -P /usr/bin/node 2>/dev/null || false)"
-	nodejsBin="$(builtin type -P /usr/bin/nodejs 2>/dev/null || false)"
-	if [ -f "$nodeBin" ] && [ ! -e "$nodejsBin" ]; then
-		sudo ln -sf "$nodeBin" "$nodejsBin"
-	fi
+
 	return $getRunStatus
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run after primary post install function
 __run_post_install() {
 	local getRunStatus=0
+	local nodeBin="" nodejsBin=""
 	local PATH="$INSTDIR/bin:$PATH"
+	nodeBin="$(builtin type -P /usr/bin/node 2>/dev/null || false)"
+	nodejsBin="$(builtin type -P /usr/bin/nodejs 2>/dev/null || false)"
 	[ -n "$NODE_MANAGER" ] || NODE_MANAGER="fnm"
 	[ -f "$HOME/.nvmrc" ] || __symlink "$APPDIR/nvmrc" "$HOME/.nvmrc"
-	if [ "$NODE_MANAGER" = "fnm" ] && __cmd_exists setup_fnm; then
-		setup_fnm
-	elif [ "$NODE_MANAGER" = "nvm" ] && __cmd_exists setup_nvm; then
-		__cmd_exists setup_nvm
+	if [ "$NODE_MANAGER" = "fnm" ] && __cmd_exists setupmgr; then
+		setupmgr fnm
+	elif [ "$NODE_MANAGER" = "nvm" ] && __cmd_exists setupmgr; then
+		setupmgr nvm
 	fi
-	__cmd_exists setup_node && setup_node
+	if [ -x "$nodeBin" ] && [ ! -e "$nodejsBin" ]; then
+		sudo ln -sf "$nodeBin" "$nodejsBin"
+	fi
 	return $getRunStatus
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
