@@ -207,7 +207,6 @@ __run_post_install() {
 	local nodeBin="" nodejsBin=""
 	local PATH="$INSTDIR/bin:$PATH"
 	nodeBin="$(builtin type -P /usr/bin/node 2>/dev/null || false)"
-	nodejsBin="$(builtin type -P /usr/bin/nodejs 2>/dev/null || false)"
 	[ -n "$NODE_MANAGER" ] || NODE_MANAGER="fnm"
 	[ -f "$HOME/.nvmrc" ] || __symlink "$APPDIR/nvmrc" "$HOME/.nvmrc"
 	if [ "$NODE_MANAGER" = "fnm" ] && __cmd_exists setupmgr; then
@@ -215,8 +214,8 @@ __run_post_install() {
 	elif [ "$NODE_MANAGER" = "nvm" ] && __cmd_exists setupmgr; then
 		setupmgr nvm
 	fi
-	if [ -x "$nodeBin" ] && [ ! -e "$nodejsBin" ]; then
-		sudo ln -sf "$nodeBin" "$nodejsBin"
+	if [ -n "$nodeBin" ] && [ ! -e "/usr/bin/nodejs" ]; then
+		sudo ln -sf /usr/bin/node /usr/bin/nodejs
 	fi
 	return $getRunStatus
 }
