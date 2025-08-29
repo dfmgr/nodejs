@@ -197,10 +197,10 @@ __run_pre_install() {
 __run_prepost_install() {
 	local getRunStatus=0
 	local nodeBin="" nodejsBin=""
-	nodeBin="$(builtin type -P node 2>/dev/null || false)"
-	nodejsBin="$(builtin type -P nodejs 2>/dev/null || false)"
+	nodeBin="$(builtin type -P /usr/bin/node 2>/dev/null || false)"
+	nodejsBin="$(builtin type -P /usr/bin/nodejs 2>/dev/null || false)"
 	if [ -f "$nodeBin" ] && [ ! -e "$nodejsBin" ]; then
-		ln -sf "$nodeBin" "$nodejsBin"
+		sudo ln -sf "$nodeBin" "$nodejsBin"
 	fi
 	return $getRunStatus
 }
