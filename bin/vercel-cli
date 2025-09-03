@@ -69,14 +69,14 @@ __remove_old() {
 	local exitCode=0 statusCode=0
 	if [ "$SETUP_VERCEL_RM_ALL" = "true" ] || [ "$VERCEL_CLI_REMOVE_OLD" = "yes" ]; then
 		if [ $# -eq 0 ]; then
-			rm_list="$(__setup_vercel ls 2>&1 | grep -iE 'Production|Preview' | grep -E 'http.*//|https.*//' | awk '{print $2}')"
+			rm_list="$(__setup_vercel ls 2>&1 | grep -iE 'Production|Preview' | grep -E 'http://|https://' | awk '{print $2}')"
 			for app in $rm_list; do
 				__setup_vercel rm --safe --yes $app
 				statusCode=$?
 				exitCode=$((exitCode + statusCode))
 			done
 		else
-			rm_list="$(__setup_vercel ls $app 2>&1 | grep -iE 'Production|Preview' | grep -E 'http.*//|https.*//' | awk '{print $2}' | wc -l)"
+			rm_list="$(__setup_vercel ls $app 2>&1 | grep -iE 'Production|Preview' | grep -E 'http://|https://' | awk '{print $2}' | wc -l)"
 			if [ "$rm_list" -gt 1 ]; then
 				__setup_vercel rm --safe --yes $app
 				exitCode=$?
